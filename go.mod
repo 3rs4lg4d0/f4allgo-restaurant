@@ -3,6 +3,7 @@ module f4allgo-restaurant
 go 1.20
 
 require (
+	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/avito-tech/go-transaction-manager v1.4.0
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/gin-gonic/gin v1.9.1
@@ -23,8 +24,6 @@ require (
 	gorm.io/gorm v1.25.4
 	gorm.io/plugin/optimisticlock v1.1.1
 )
-
-require github.com/actgardner/gogen-avro/v10 v10.2.1 // indirect
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
@@ -90,6 +89,7 @@ require (
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
