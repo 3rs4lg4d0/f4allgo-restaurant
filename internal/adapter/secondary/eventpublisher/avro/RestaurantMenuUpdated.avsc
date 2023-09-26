@@ -1,0 +1,47 @@
+{
+  "namespace": "com.f4allgo.restaurant.domain.events.avro",
+  "type": "record",
+  "name": "RestaurantMenuUpdatedAvro",
+  "fields": [
+    {
+      "name": "restaurantId",
+      "type": "long"
+    },
+    {
+      "name": "menu",
+      "type": {
+        "name": "MenuAvro",
+        "type": "record",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "type": "array",
+              "items": {
+                "name": "MenuItemAvro",
+                "type": "record",
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": "long"
+                  },
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "price",
+                    "type": "bytes",
+                    "logicalType": "decimal",
+                    "precision": 9,
+                    "scale": 2
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

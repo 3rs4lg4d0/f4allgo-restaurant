@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'f4allgo-restaurant'
+    static_configs:
+      - targets: ['host.docker.internal:8080','f4allgorestaurant-rest:8080']

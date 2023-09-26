@@ -1,0 +1,34 @@
+
+# IDE
+.idea
+.vscode/*
+
+# OS
+.DS_Store
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+.docker
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+*.html
+
+# Ignore app binaries
+f4allgorestaurant-cli
+f4allgorestaurant-rest
+
+# Ignore generated avro files
+**/*_avro.go
+**/avro/bytes.go
+
+# Ignore generated mock files
+**/*_mock.go
+

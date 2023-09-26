@@ -1,0 +1,11 @@
+# -----------------------------------------------------------------------------
+# kafkactl configuration. Here we define the local kafka broker and also the
+# schema registry URL to automatically decode AVRO messages when consuming.
+# -----------------------------------------------------------------------------
+contexts:
+  domain-kafka:
+    brokers:
+      - domain-kafka:9092
+    avro:
+      schemaRegistry: domain-schema-registry:8081
+current-context: domain-kafka

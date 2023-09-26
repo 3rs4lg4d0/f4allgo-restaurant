@@ -1,0 +1,51 @@
+name: CI pipeline
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.mod'
+        cache-dependency-path: |
+          go.sum
+          tools/go.sum
+
+    - name: Generate sources
+      run: go generate -v ./...
+    
+    - name: Build all
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
+
+  dependabot:
+    runs-on: ubuntu-latest
+    name: Dependabot auto merge
+    needs: build
+    if: ${{ github.actor == 'dependabot[bot]' }}
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+    - name: Enable auto-merge for Dependabot PRs
+      run: gh pr merge --auto --merge --squash "$PR_URL"
+      env:
+        PR_URL: ${{github.event.pull_request.html_url}}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

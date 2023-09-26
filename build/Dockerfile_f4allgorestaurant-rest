@@ -1,0 +1,44 @@
+# This is the recomended way to build a containerized release of the application.
+# This multistage pipeline creates a static binary and release it into an empty
+# container image.
+FROM golang:1.21.1-alpine AS build-stage
+
+# CGO has to be enabled because of "github.com/confluentinc/confluent-kafka-go".
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+WORKDIR /build-folder
+
+# -----------------------------------------------------------------------------
+# Download dependencies. Better to do it before copying all the sources
+# for better caching.
+# -----------------------------------------------------------------------------
+COPY go.mod go.sum ./
+COPY tools/go.mod tools/go.sum tools/
+RUN go mod download && cd tools && go mod download
+
+# -----------------------------------------------------------------------------
+# Install build tools if needed.
+# -----------------------------------------------------------------------------
+RUN apk -U add ca-certificates
+RUN apk update && apk upgrade && apk add pkgconf git bash build-base sudo
+
+# -----------------------------------------------------------------------------
+# Build stage.
+# -----------------------------------------------------------------------------
+COPY / .
+RUN go generate -v ./...
+RUN go build --ldflags '-linkmode external -extldflags "-static"' -tags musl \
+    -o / cmd/f4allgorestaurant-rest/f4allgorestaurant-rest.go
+
+# -----------------------------------------------------------------------------
+# Deployment stage.
+# -----------------------------------------------------------------------------
+FROM scratch AS runner
+
+COPY --from=build-stage /f4allgorestaurant-rest /
+
+EXPOSE 8080
+
+ENTRYPOINT ["./f4allgorestaurant-rest"]

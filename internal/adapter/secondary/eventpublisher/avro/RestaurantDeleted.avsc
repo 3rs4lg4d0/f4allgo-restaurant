@@ -1,0 +1,11 @@
+{
+  "namespace": "com.f4allgo.restaurant.domain.events.avro",
+  "type": "record",
+  "name": "RestaurantDeletedAvro",
+  "fields": [
+    {
+      "name": "restaurantId",
+      "type": "long"
+    }
+  ]
+}

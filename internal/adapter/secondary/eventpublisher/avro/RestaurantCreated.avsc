@@ -1,0 +1,76 @@
+{
+  "namespace": "com.f4allgo.restaurant.domain.events.avro",
+  "type": "record",
+  "name": "RestaurantCreatedAvro",
+  "fields": [
+    {
+      "name": "id",
+      "type": "long"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "address",
+      "type": {
+        "name": "AdressAvro",
+        "type": "record",
+        "fields": [
+          {
+            "name": "street",
+            "type": "string"
+          },
+          {
+            "name": "city",
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "type": "string"
+          },
+          {
+            "name": "zip",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "menu",
+      "type": {
+        "name": "MenuAvro",
+        "type": "record",
+        "fields": [
+          {
+            "name": "items",
+            "type": {
+              "type": "array",
+              "items": {
+                "name": "MenuItemAvro",
+                "type": "record",
+                "fields": [
+                  {
+                    "name": "id",
+                    "type": "long"
+                  },
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "price",
+                    "type": "bytes",
+                    "logicalType": "decimal",
+                    "precision": 9,
+                    "scale": 2
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

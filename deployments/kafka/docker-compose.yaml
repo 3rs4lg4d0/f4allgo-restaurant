@@ -1,0 +1,34 @@
+version: "2"
+
+services:
+  domain-kafka:
+    image: docker.io/bitnami/kafka:3.5
+    container_name: domain-kafka
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://domain-kafka:9092,CONNECTIONS_FROM_HOST://localhost:19092
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,CONNECTIONS_FROM_HOST://:19092
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,CONNECTIONS_FROM_HOST:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@domain-kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    ports:
+      - 19092:19092
+
+  domain-schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.1
+    hostname: domain-schema-registry
+    container_name: domain-schema-registry
+    depends_on:
+      - domain-kafka
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: domain-schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'domain-kafka:9092'
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    ports:
+      - 18081:8081
+
+networks:
+  default:
+    name: f4allgo-network
+    external: true

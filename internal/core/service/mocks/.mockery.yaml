@@ -1,0 +1,12 @@
+with-expecter: true
+dir: .
+outpkg: mocks
+filename: "{{.InterfaceName}}_mock.go"
+packages:
+    f4allgo-restaurant/internal/core/port:
+        interfaces:
+            RestaurantRepository:
+            DomainEventPublisher:
+    github.com/avito-tech/go-transaction-manager/trm:
+        interfaces:
+            Manager:

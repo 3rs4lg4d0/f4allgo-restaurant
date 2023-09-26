@@ -1,0 +1,25 @@
+{
+    "restaurant": {
+        "name": "Los Baltazares",
+        "address": {
+            "street": "Avenida de los pinos de Montequinto",
+            "city": "Dos Hermanas",
+            "state": "Sevilla",
+            "zip": "41089"
+        },
+        "menu": {
+            "items": [
+                {
+                    "id": 1,
+                    "name": "Tapa de adobo",
+                    "price": "13.14"
+                },
+                {
+                    "id": 2,
+                    "name": "Tapa de patatas",
+                    "price": "3.14"
+                }
+            ]
+        }
+    }
+}

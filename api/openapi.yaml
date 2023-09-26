@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: Restaurant API
+  description: "This API defines operations to interact with restaurants."
+  version: 1.0.0
+  contact:
+    email: ernesto.salgado.suarez@gmail.com
+servers:
+  - url: http://localhost:8080/v1
+tags:
+  - name: Restaurants
+    description: Restaurant related operations
+paths:
+  /restaurants:
+    get:
+      tags:
+        - Restaurants
+      summary: Gets the list of all restaurants.
+      operationId: getRestaurants
+      responses:
+        200:
+          description: Returns the list of all restaurants registered in the application.
+          content:
+            application/json:
+              schema:
+                title: GetRestaurantsResponse
+                type: object
+                properties:
+                  restaurants:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Restaurant"
+    post:
+      tags:
+        - Restaurants
+      summary: Creates and registers a restaurant.
+      operationId: createRestaurant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: CreateRestaurantRequest
+              type: object
+              properties:
+                restaurant:
+                  $ref: "#/components/schemas/Restaurant"
+              required:
+                - restaurant
+      responses:
+        "201":
+          description: Successful operation
+
+  /restaurants/{restaurantId}/menu:
+    put:
+      tags:
+        - Restaurants
+      summary: Updates the menu of a restaurant.
+      operationId: updateMenu
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              title: UpdateMenuRequest
+              type: object
+              properties:
+                menu:
+                  $ref: "#/components/schemas/Menu"
+              required:
+                - menu
+      responses:
+        "200":
+          description: Successful operation
+  
+  /restaurants/{restaurantId}:
+    delete:
+      tags:
+        - Restaurants
+      summary: Deletes a restaurant.
+      operationId: deleteRestaurant
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      responses:
+        "200":
+          description: Successful operation
+components:
+  schemas:
+    Restaurant:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 12345
+          readOnly: true
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Los caminantes
+          readOnly: false
+        address:
+          $ref: "#/components/schemas/Address"
+        menu:
+          $ref: "#/components/schemas/Menu"
+      required:
+        - name
+        - address
+        - menu
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Los Baltazares
+        city:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Dos Hermanas
+        state:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Sevilla
+        zip:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: 41702
+      required:
+        - street
+        - city
+        - state
+        - zip
+    Menu:
+      type: object
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/MenuItem"
+      required:
+        - items
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 12
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          example: Papas con chocos
+        price:
+          type: string
+          pattern: '^\d+.\d{2}$'
+          minLength: 1
+          maxLength: 10
+          example: 4.95
+      required:
+        - id
+        - name
+        - price
