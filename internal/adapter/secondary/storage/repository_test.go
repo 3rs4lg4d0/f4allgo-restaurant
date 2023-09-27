@@ -65,14 +65,16 @@ func TestMain(m *testing.M) {
 
 func TestRestaurantPostgresRepository_FindAll(t *testing.T) {
 	ctx := context.Background()
-	restaurants, err := restaurantRepository.FindAll(ctx, 0, 100)
+	restaurants, total, err := restaurantRepository.FindAll(ctx, 0, 100)
 	assert.NoError(t, err)
 	assert.Len(t, restaurants, 3)
+	assert.Equal(t, int64(3), total)
 	assert.Equal(t, uint64(1000), restaurants[0].Id)
 
-	restaurants, err = restaurantRepository.FindAll(ctx, 1, 2)
+	restaurants, _, err = restaurantRepository.FindAll(ctx, 1, 2)
 	assert.NoError(t, err)
 	assert.Len(t, restaurants, 2)
+	assert.Equal(t, int64(3), total)
 	assert.Equal(t, uint64(2000), restaurants[0].Id)
 }
 
@@ -104,7 +106,7 @@ func TestRestaurantPostgresRepository_Save(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Find restaurants.
-		restaurants, err := restaurantRepository.FindAll(ctx, 0, 100)
+		restaurants, _, err := restaurantRepository.FindAll(ctx, 0, 100)
 		assert.NoError(t, err)
 		assert.Len(t, restaurants, 5)
 
@@ -125,7 +127,7 @@ func TestRestaurantPostgresRepository_Update(t *testing.T) {
 		err = restaurantRepository.Update(ctx, restaurant)
 		assert.NoError(t, err)
 
-		restaurants, err := restaurantRepository.FindAll(ctx, 0, 100)
+		restaurants, _, err := restaurantRepository.FindAll(ctx, 0, 100)
 		assert.NoError(t, err)
 		for _, r := range restaurants {
 			if r.Id == uint64(1000) {
@@ -145,12 +147,12 @@ func TestRestaurantPostgresRepository_Update(t *testing.T) {
 func TestRestaurantPostgresRepository_Delete(t *testing.T) {
 	ctx := context.Background()
 	trManager.Do(ctx, func(ctx context.Context) error {
-		restaurants, err := restaurantRepository.FindAll(ctx, 0, 100)
+		restaurants, _, err := restaurantRepository.FindAll(ctx, 0, 100)
 		assert.NoError(t, err)
 		assert.Equal(t, 3, len(restaurants))
 
 		err = restaurantRepository.Delete(ctx, uint64(1000))
-		restaurants, _ = restaurantRepository.FindAll(ctx, 0, 100)
+		restaurants, _, _ = restaurantRepository.FindAll(ctx, 0, 100)
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(restaurants))
 

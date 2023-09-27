@@ -58,13 +58,13 @@ func (rh *RestaurantHandler) DeleteRestaurant(ctx *gin.Context) {
 // GetRestaurants gets the list of all restaurants.
 func (rh *RestaurantHandler) GetRestaurants(ctx *gin.Context) {
 	offset, limit := getOffsetAndLimit(ctx)
-	domainRestaurants, err := rh.restaurantService.FindAll(ctx, offset, limit)
+	domainRestaurants, total, err := rh.restaurantService.FindAll(ctx, offset, limit)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	dtoRestaurants := rh.mapper.fromDomainRestaurants(domainRestaurants)
-	ctx.JSON(http.StatusOK, GetRestaurantsResponse{Restaurants: dtoRestaurants})
+	ctx.JSON(http.StatusOK, GetRestaurantsResponse{Restaurants: dtoRestaurants, Total: total})
 }
 
 // UpdateMenu updates the menu of a restaurant.
@@ -115,7 +115,7 @@ func getOffsetAndLimit(ctx *gin.Context) (int, int) {
 		offset = 0
 	}
 
-	limit, err := strconv.ParseInt(limitStr, 10, 8)
+	limit, err := strconv.ParseInt(limitStr, 10, 32)
 	if err != nil {
 		limit = 10
 	}

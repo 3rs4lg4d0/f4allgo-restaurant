@@ -147,12 +147,12 @@ func (rc *RestaurantCli) deleteRestaurant(restaurantId uint64) error {
 
 // GetRestaurants gets the list of all restaurants.
 func (rc *RestaurantCli) getRestaurants(offset int, limit int) error {
-	domainRestaurants, err := rc.restaurantService.FindAll(rc.ctx, offset, limit)
+	domainRestaurants, total, err := rc.restaurantService.FindAll(rc.ctx, offset, limit)
 	if err != nil {
 		return err
 	}
 	dtoRestaurants := rc.mapper.fromDomainRestaurants(domainRestaurants)
-	return printJSON(GetRestaurantsResponse{Restaurants: dtoRestaurants})
+	return printJSON(GetRestaurantsResponse{Restaurants: dtoRestaurants, Total: total})
 }
 
 // UpdateMenu updates the menu of a restaurant.
@@ -183,7 +183,7 @@ func getOffsetAndLimit(cmd *cobra.Command) (int, int) {
 		offset = 0
 	}
 
-	limit, err := strconv.ParseInt(limitStr, 10, 8)
+	limit, err := strconv.ParseInt(limitStr, 10, 32)
 	if err != nil {
 		limit = 10
 	}

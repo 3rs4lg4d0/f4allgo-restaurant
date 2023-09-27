@@ -11,7 +11,7 @@ import (
 type RestaurantService interface {
 
 	// FindAll gets the complete list of registered restaurants.
-	FindAll(ctx context.Context, offset int, limit int) ([]*domain.Restaurant, error)
+	FindAll(ctx context.Context, offset int, limit int) ([]*domain.Restaurant, int64, error)
 
 	// Create creates and persist a restaurant.
 	Create(ctx context.Context, restaurant *domain.Restaurant) error
