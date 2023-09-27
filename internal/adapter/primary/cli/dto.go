@@ -42,4 +42,5 @@ type UpdateMenuRequest struct {
 
 type GetRestaurantsResponse struct {
 	Restaurants []*Restaurant `json:"restaurants"`
+	Total       int64         `json:"total"`
 }

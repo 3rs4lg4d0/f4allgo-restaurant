@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"f4allgo-restaurant/internal/core/port"
 	"fmt"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/cobra"
@@ -54,7 +55,8 @@ func (rc *RestaurantCli) Execute() error {
 		Use:   "restaurants",
 		Short: "Get restaurants",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return rc.getRestaurants()
+			offset, limit := getOffsetAndLimit(cmd)
+			return rc.getRestaurants(offset, limit)
 		},
 	}
 	var createRestaurantCmd = &cobra.Command{
@@ -144,13 +146,13 @@ func (rc *RestaurantCli) deleteRestaurant(restaurantId uint64) error {
 }
 
 // GetRestaurants gets the list of all restaurants.
-func (rc *RestaurantCli) getRestaurants() error {
-	domainRestaurants, err := rc.restaurantService.FindAll(rc.ctx)
+func (rc *RestaurantCli) getRestaurants(offset int, limit int) error {
+	domainRestaurants, total, err := rc.restaurantService.FindAll(rc.ctx, offset, limit)
 	if err != nil {
 		return err
 	}
 	dtoRestaurants := rc.mapper.fromDomainRestaurants(domainRestaurants)
-	return printJSON(GetRestaurantsResponse{Restaurants: dtoRestaurants})
+	return printJSON(GetRestaurantsResponse{Restaurants: dtoRestaurants, Total: total})
 }
 
 // UpdateMenu updates the menu of a restaurant.
@@ -170,4 +172,26 @@ func printJSON(jsonStruct any) error {
 	fmt.Println(jsonStr)
 	fmt.Println()
 	return nil
+}
+
+func getOffsetAndLimit(cmd *cobra.Command) (int, int) {
+	offsetStr, _ := cmd.Flags().GetString("offset")
+	limitStr, _ := cmd.Flags().GetString("limit")
+
+	offset, err := strconv.ParseInt(offsetStr, 10, 32)
+	if err != nil {
+		offset = 0
+	}
+
+	limit, err := strconv.ParseInt(limitStr, 10, 32)
+	if err != nil {
+		limit = 10
+	}
+
+	// Set a hardcoded maximum limit of 100 elements per page.
+	if limit > 100 {
+		limit = 100
+	}
+
+	return int(offset), int(limit)
 }

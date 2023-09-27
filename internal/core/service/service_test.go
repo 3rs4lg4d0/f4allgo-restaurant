@@ -28,7 +28,7 @@ func TestDefaultRestaurantService_FindAll(t *testing.T) {
 		{
 			name: "When RestaurantRepository returns an empty slice",
 			expectations: func(repository *mocks.MockRestaurantRepository) {
-				repository.EXPECT().FindAll(context.Background()).Return(make([]*domain.Restaurant, 0), nil).Once()
+				repository.EXPECT().FindAll(context.Background(), 0, 100).Return(make([]*domain.Restaurant, 0), 0, nil).Once()
 			},
 			args: args{
 				ctx: context.Background(),
@@ -39,7 +39,7 @@ func TestDefaultRestaurantService_FindAll(t *testing.T) {
 		{
 			name: "When RestaurantRepository returns an error",
 			expectations: func(repository *mocks.MockRestaurantRepository) {
-				repository.EXPECT().FindAll(context.Background()).Return(nil, errors.New("error")).Once()
+				repository.EXPECT().FindAll(context.Background(), 0, 100).Return(nil, 0, errors.New("error")).Once()
 			},
 			args: args{
 				ctx: context.Background(),
@@ -54,7 +54,7 @@ func TestDefaultRestaurantService_FindAll(t *testing.T) {
 			tt.expectations(mockRepository)
 
 			rs := NewDefaultRestaurantService(mockRepository, nil, nil)
-			got, err := rs.FindAll(tt.args.ctx)
+			got, _, err := rs.FindAll(tt.args.ctx, 0, 100)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("DefaultRestaurantService.FindAll() error = %v, wantErr %v", err, tt.wantErr)
 				return
