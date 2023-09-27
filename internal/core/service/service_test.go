@@ -28,7 +28,7 @@ func TestDefaultRestaurantService_FindAll(t *testing.T) {
 		{
 			name: "When RestaurantRepository returns an empty slice",
 			expectations: func(repository *mocks.MockRestaurantRepository) {
-				repository.EXPECT().FindAll(context.Background(), uint32(0), uint8(100)).Return(make([]*domain.Restaurant, 0), nil).Once()
+				repository.EXPECT().FindAll(context.Background(), 0, 100).Return(make([]*domain.Restaurant, 0), nil).Once()
 			},
 			args: args{
 				ctx: context.Background(),
@@ -39,7 +39,7 @@ func TestDefaultRestaurantService_FindAll(t *testing.T) {
 		{
 			name: "When RestaurantRepository returns an error",
 			expectations: func(repository *mocks.MockRestaurantRepository) {
-				repository.EXPECT().FindAll(context.Background(), uint32(0), uint8(100)).Return(nil, errors.New("error")).Once()
+				repository.EXPECT().FindAll(context.Background(), 0, 100).Return(nil, errors.New("error")).Once()
 			},
 			args: args{
 				ctx: context.Background(),

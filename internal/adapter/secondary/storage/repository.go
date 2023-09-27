@@ -29,9 +29,9 @@ func NewRestaurantPostgresRepository(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, 
 }
 
 // FindAll restrieves all the registered restaurants.
-func (r *RestaurantPostgresRepository) FindAll(ctx context.Context, offset uint32, limit uint8) ([]*domain.Restaurant, error) {
+func (r *RestaurantPostgresRepository) FindAll(ctx context.Context, offset int, limit int) ([]*domain.Restaurant, error) {
 	var restaurants []*Restaurant
-	if err := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Preload("Menu").Offset(int(offset)).Limit(int(limit)).Find(&restaurants).Error; err != nil {
+	if err := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Preload("Menu").Offset(offset).Limit(limit).Find(&restaurants).Error; err != nil {
 		return nil, err
 	}
 

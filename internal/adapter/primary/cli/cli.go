@@ -146,7 +146,7 @@ func (rc *RestaurantCli) deleteRestaurant(restaurantId uint64) error {
 }
 
 // GetRestaurants gets the list of all restaurants.
-func (rc *RestaurantCli) getRestaurants(offset uint32, limit uint8) error {
+func (rc *RestaurantCli) getRestaurants(offset int, limit int) error {
 	domainRestaurants, err := rc.restaurantService.FindAll(rc.ctx, offset, limit)
 	if err != nil {
 		return err
@@ -174,7 +174,7 @@ func printJSON(jsonStruct any) error {
 	return nil
 }
 
-func getOffsetAndLimit(cmd *cobra.Command) (int32, int8) {
+func getOffsetAndLimit(cmd *cobra.Command) (int, int) {
 	offsetStr, _ := cmd.Flags().GetString("offset")
 	limitStr, _ := cmd.Flags().GetString("limit")
 
@@ -193,5 +193,5 @@ func getOffsetAndLimit(cmd *cobra.Command) (int32, int8) {
 		limit = 100
 	}
 
-	return int32(offset), int8(limit)
+	return int(offset), int(limit)
 }

@@ -106,7 +106,7 @@ func handleError(ctx *gin.Context, err error) {
 	}
 }
 
-func getOffsetAndLimit(ctx *gin.Context) (uint32, uint8) {
+func getOffsetAndLimit(ctx *gin.Context) (int, int) {
 	offsetStr := ctx.DefaultQuery("offset", "0")
 	limitStr := ctx.DefaultQuery("limit", "10")
 
@@ -125,5 +125,5 @@ func getOffsetAndLimit(ctx *gin.Context) (uint32, uint8) {
 		limit = 100
 	}
 
-	return uint32(offset), uint8(limit)
+	return int(offset), int(limit)
 }
