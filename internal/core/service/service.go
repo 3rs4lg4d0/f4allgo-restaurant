@@ -28,8 +28,8 @@ func NewDefaultRestaurantService(restaurantRepository port.RestaurantRepository,
 	return &DefaultRestaurantService{restaurantRepository: restaurantRepository, domainEventPublisher: domainEventPublisher, trManager: trManager}
 }
 
-func (rs *DefaultRestaurantService) FindAll(ctx context.Context) ([]*domain.Restaurant, error) {
-	restaurants, err := rs.restaurantRepository.FindAll(ctx)
+func (rs *DefaultRestaurantService) FindAll(ctx context.Context, offset uint32, limit uint8) ([]*domain.Restaurant, error) {
+	restaurants, err := rs.restaurantRepository.FindAll(ctx, offset, limit)
 	if err != nil {
 		log.Error().Msg("an error occurred while fetching all the restaurant: " + err.Error())
 		return nil, coreerrors.NewRepositoryError(err)

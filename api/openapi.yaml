@@ -17,6 +17,24 @@ paths:
         - Restaurants
       summary: Gets the list of all restaurants.
       operationId: getRestaurants
+      parameters:
+        - name: offset
+          in: query
+          description: 'The offset for paginating the results (default: 0)'
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            example: 0
+        - name: limit
+          in: query
+          description: 'The maximum number of items to return (default: 10)'
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
       responses:
         200:
           description: Returns the list of all restaurants registered in the application.
@@ -30,6 +48,10 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Restaurant"
+                  total:
+                    type: integer
+                    description: Total number of restaurants registered in the application
+                    example: 514
     post:
       tags:
         - Restaurants
@@ -112,7 +134,7 @@ components:
           type: string
           minLength: 1
           maxLength: 255
-          example: Los caminantes
+          example: A random restaurant name
           readOnly: false
         address:
           $ref: "#/components/schemas/Address"
@@ -129,22 +151,22 @@ components:
           type: string
           minLength: 1
           maxLength: 255
-          example: Los Baltazares
+          example: A random street
         city:
           type: string
           minLength: 1
           maxLength: 255
-          example: Dos Hermanas
+          example: A random city
         state:
           type: string
           minLength: 1
           maxLength: 255
-          example: Sevilla
+          example: A random state
         zip:
           type: string
           minLength: 1
           maxLength: 255
-          example: 41702
+          example: A random zip
       required:
         - street
         - city
@@ -167,18 +189,18 @@ components:
         id:
           type: integer
           format: int32
-          example: 12
+          example: 1
         name:
           type: string
           minLength: 1
           maxLength: 255
-          example: Papas con chocos
+          example: A random menu item
         price:
           type: string
           pattern: '^\d+.\d{2}$'
           minLength: 1
           maxLength: 10
-          example: 4.95
+          example: 4.99
       required:
         - id
         - name

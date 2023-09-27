@@ -57,7 +57,8 @@ func (rh *RestaurantHandler) DeleteRestaurant(ctx *gin.Context) {
 
 // GetRestaurants gets the list of all restaurants.
 func (rh *RestaurantHandler) GetRestaurants(ctx *gin.Context) {
-	domainRestaurants, err := rh.restaurantService.FindAll(ctx)
+	offset, limit := getOffsetAndLimit(ctx)
+	domainRestaurants, err := rh.restaurantService.FindAll(ctx, offset, limit)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -103,4 +104,26 @@ func handleError(ctx *gin.Context, err error) {
 	default:
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": e.Error()})
 	}
+}
+
+func getOffsetAndLimit(ctx *gin.Context) (uint32, uint8) {
+	offsetStr := ctx.DefaultQuery("offset", "0")
+	limitStr := ctx.DefaultQuery("limit", "10")
+
+	offset, err := strconv.ParseInt(offsetStr, 10, 32)
+	if err != nil {
+		offset = 0
+	}
+
+	limit, err := strconv.ParseInt(limitStr, 10, 8)
+	if err != nil {
+		limit = 10
+	}
+
+	// Set a hardcoded maximum limit of 100 elements per page.
+	if limit > 100 {
+		limit = 100
+	}
+
+	return uint32(offset), uint8(limit)
 }

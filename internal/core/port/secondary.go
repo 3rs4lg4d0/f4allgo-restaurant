@@ -10,7 +10,7 @@ import (
 type RestaurantRepository interface {
 
 	// FindAll restrieves all the registered restaurants with their menus.
-	FindAll(ctx context.Context) ([]*domain.Restaurant, error)
+	FindAll(ctx context.Context, offset uint32, limit uint8) ([]*domain.Restaurant, error)
 
 	// FindById retrieves a particular restaurant by its identifier. This method
 	// does not load the menu; just the restaurant info.
