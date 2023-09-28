@@ -59,6 +59,9 @@ func (rc *RestaurantCli) Execute() error {
 			return rc.getRestaurants(offset, limit)
 		},
 	}
+	getRestaurantsCmd.PersistentFlags().String("offset", "", "the offset to use in pagination")
+	getRestaurantsCmd.PersistentFlags().String("limit", "", "the limit to use in pagination")
+
 	var createRestaurantCmd = &cobra.Command{
 		Use:   "restaurant",
 		Short: "Create restaurant",
