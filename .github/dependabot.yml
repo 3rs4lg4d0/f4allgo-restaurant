@@ -4,6 +4,10 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    
+    commit-message:
+      prefix: "chore"
+
     # Group patch and minor updates into a single PR.
     groups:
       minor_and_patches:
