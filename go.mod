@@ -18,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.25.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.25.0
-	github.com/uber-go/tally/v4 v4.1.7
+	github.com/uber-go/tally/v4 v4.1.9
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.4
 	gorm.io/plugin/optimisticlock v1.1.1
