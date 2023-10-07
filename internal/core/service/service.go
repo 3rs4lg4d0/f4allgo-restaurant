@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"f4allgo-restaurant/internal/core/domain"
 	"f4allgo-restaurant/internal/core/port"
@@ -38,6 +36,10 @@ func (rs *DefaultRestaurantService) FindAll(ctx context.Context, offset int, lim
 	return restaurants, total, nil
 }
 
+func (rs *DefaultRestaurantService) FindById(ctx context.Context, restaurantId int64) (*domain.Restaurant, error) {
+	return rs.findById(ctx, restaurantId, true)
+}
+
 func (rs *DefaultRestaurantService) Create(ctx context.Context, restaurant *domain.Restaurant) error {
 	return rs.trManager.Do(ctx, func(ctx context.Context) error {
 		if err := rs.restaurantRepository.Save(ctx, restaurant); err != nil {
@@ -46,25 +48,25 @@ func (rs *DefaultRestaurantService) Create(ctx context.Context, restaurant *doma
 		}
 
 		if err := rs.domainEventPublisher.Publish(ctx, domain.NewRestaurantCreated(restaurant)); err != nil {
-			return fmt.Errorf("domainEventPublisher.Publish: %w", coreerrors.NewEventPublisherError(err))
+			return coreerrors.NewEventPublisherError(err)
 		}
 
 		return nil
 	})
 }
 
-func (rs *DefaultRestaurantService) UpdateMenu(ctx context.Context, restaurantId uint64, menu *domain.Menu) error {
+func (rs *DefaultRestaurantService) UpdateMenu(ctx context.Context, restaurantId int64, menu *domain.Menu) error {
 	return rs.trManager.Do(ctx, func(ctx context.Context) error {
-		restaurant, err := rs.findById(ctx, restaurantId)
+		restaurant, err := rs.findById(ctx, restaurantId, false)
 		if err != nil {
 			return err
 		}
 
 		if err := restaurant.UpdateMenu(menu); err != nil {
-			return fmt.Errorf("restaurant.UpdateMenu: %w", err)
+			return coreerrors.NewCoreError(err)
 		}
 
-		if err := rs.restaurantRepository.Update(ctx, restaurant); err != nil {
+		if _, err := rs.restaurantRepository.Update(ctx, restaurant); err != nil {
 			return coreerrors.NewRepositoryError(err)
 		}
 
@@ -76,17 +78,17 @@ func (rs *DefaultRestaurantService) UpdateMenu(ctx context.Context, restaurantId
 	})
 }
 
-func (rs *DefaultRestaurantService) Delete(ctx context.Context, restaurantId uint64) error {
+func (rs *DefaultRestaurantService) Delete(ctx context.Context, restaurantId int64) error {
+	var rowsAffected int64
+	var err error
+
 	return rs.trManager.Do(ctx, func(ctx context.Context) error {
-		// We check the existence of the restaurant because we want to make sure we
-		// don't send useless 'RestaurantDeleted' events.
-		_, err := rs.findById(ctx, restaurantId)
-		if err != nil {
-			return err
+		if rowsAffected, err = rs.restaurantRepository.Delete(ctx, restaurantId); err != nil {
+			return coreerrors.NewRepositoryError(err)
 		}
 
-		if err := rs.restaurantRepository.Delete(ctx, restaurantId); err != nil {
-			return coreerrors.NewRepositoryError(err)
+		if rowsAffected == 0 {
+			return coreerrors.NewRestaurantNotFoundError(err)
 		}
 
 		if err := rs.domainEventPublisher.Publish(ctx, domain.NewRestaurantDeleted(restaurantId)); err != nil {
@@ -97,17 +99,16 @@ func (rs *DefaultRestaurantService) Delete(ctx context.Context, restaurantId uin
 	})
 }
 
-// findById tries to get a restaurant by its identifier using the repository. It
-// also returns errors.NewRestaurantNotFoundError in case the restaurant doesn't
-// exist.
-func (rs *DefaultRestaurantService) findById(ctx context.Context, restaurantId uint64) (*domain.Restaurant, error) {
-	restaurant, err := rs.restaurantRepository.FindById(ctx, restaurantId)
+// findById is a private function to find restaurants. It returns core service errors
+// for any database access error and for restaurants not found in the database.
+func (rs *DefaultRestaurantService) findById(ctx context.Context, restaurantId int64, fetchMenu bool) (*domain.Restaurant, error) {
+	restaurant, err := rs.restaurantRepository.FindById(ctx, restaurantId, fetchMenu)
 	if err != nil {
-		return nil, coreerrors.NewRepositoryError(err)
-	}
-
-	if restaurant == nil {
-		return nil, coreerrors.NewRestaurantNotFoundError(errors.New("restaurant not found"))
+		if err.Error() == "record not found" {
+			return nil, coreerrors.NewRestaurantNotFoundError(err)
+		} else {
+			return nil, coreerrors.NewRepositoryError(err)
+		}
 	}
 
 	return restaurant, nil

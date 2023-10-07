@@ -104,6 +104,33 @@ paths:
           description: Successful operation
   
   /restaurants/{restaurantId}:
+    get:
+      tags:
+        - Restaurants
+      summary: Gets a restaurant by its ID.
+      operationId: getRestaurantById
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+      responses:
+        200:
+          description: Returns a restaurant by its ID.
+          content:
+            application/json:
+              schema:
+                title: GetRestaurantResponse
+                type: object
+                properties:
+                  restaurant:
+                    $ref: "#/components/schemas/Restaurant"
+        404:
+          description: Restaurant not found.
+
     delete:
       tags:
         - Restaurants
