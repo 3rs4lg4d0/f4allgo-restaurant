@@ -10,7 +10,7 @@ import "errors"
 // in an address and offers to customers a menu. It's also the aggregate root to
 // manage addresses and menus.
 type Restaurant struct {
-	Id      uint64
+	Id      int64
 	Name    string
 	Address *Address
 	Menu    *Menu

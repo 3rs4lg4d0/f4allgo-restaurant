@@ -1,11 +1,9 @@
 #!/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
 
-cd ../../
-cd deployments/kafka && docker-compose stop && cd ../..
-cd deployments/metrics && docker-compose stop && cd ../..
-cd deployments/postgres && docker-compose stop && cd ../..
+cd "$BASE_DIR/deployments/kafka" && docker-compose stop
+cd "$BASE_DIR/deployments/metrics" && docker-compose stop
+cd "$BASE_DIR/deployments/postgres" && docker-compose stop
 
 cd -

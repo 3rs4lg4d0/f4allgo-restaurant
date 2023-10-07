@@ -4,7 +4,6 @@ import (
 	"context"
 	"f4allgo-restaurant/internal/core/domain"
 	"f4allgo-restaurant/internal/core/port"
-	"fmt"
 
 	trmgorm "github.com/avito-tech/go-transaction-manager/gorm"
 	tally "github.com/uber-go/tally/v4"
@@ -42,20 +41,23 @@ func (r *RestaurantPostgresRepository) FindAll(ctx context.Context, offset int, 
 	return r.mapper.toDomainRestaurants(restaurants), total, nil
 }
 
-// FindById retrieves a particular restaurant by its identifier. If the restaurant
-// doesn't exist it doesn't fail, but return a nil restaurant.
-func (r *RestaurantPostgresRepository) FindById(ctx context.Context, restaurantId uint64) (*domain.Restaurant, error) {
-	var restaurants [1]*Restaurant
-	if err := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Where("id = ?", restaurantId).Find(&restaurants).Error; err != nil {
+// FindById retrieves a particular restaurant by its identifier. The method allows the client to decide if
+// the restaurant's menu should be fetched or not.
+func (r *RestaurantPostgresRepository) FindById(ctx context.Context, restaurantId int64, fetchMenu bool) (*domain.Restaurant, error) {
+	var restaurant *Restaurant
+	var err error
+
+	if fetchMenu {
+		err = r.ctxGetter.DefaultTrOrDB(ctx, r.db).Preload("Menu").First(&restaurant, restaurantId).Error
+	} else {
+		err = r.ctxGetter.DefaultTrOrDB(ctx, r.db).First(&restaurant, restaurantId).Error
+	}
+
+	if err != nil {
 		return nil, err
 	}
 
-	// If the restaurant doesn't exist, return nil.
-	if restaurants[0] == nil {
-		return nil, nil
-	}
-
-	return r.mapper.toDomainRestaurant(restaurants[0]), nil
+	return r.mapper.toDomainRestaurant(restaurant), nil
 }
 
 // Save persists a restaurant in the database.
@@ -64,27 +66,32 @@ func (r *RestaurantPostgresRepository) Save(ctx context.Context, restaurant *dom
 	if err := r.executeWithTimer(func() error {
 		return r.ctxGetter.DefaultTrOrDB(ctx, r.db).Clauses(clause.OnConflict{DoNothing: true}).Create(restaurantDto).Error
 	}); err != nil {
-		return fmt.Errorf("when trying to create the restaurant: %w", err)
+		return err
 	}
 	restaurant.Id = restaurantDto.ID
 	return nil
 }
 
 // Update updates a restaurant and its relations.
-func (r *RestaurantPostgresRepository) Update(ctx context.Context, restaurant *domain.Restaurant) error {
-	// Delete previous relation in the database.
+func (r *RestaurantPostgresRepository) Update(ctx context.Context, restaurant *domain.Restaurant) (int64, error) {
+	// Delete previous menu items.
 	err := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Where("restaurant_id = ?", restaurant.Id).Delete(&MenuItem{}).Error
 	if err != nil {
-		return fmt.Errorf("an error ocurrend when trying to delete the menu items related to the restaurant: %w", err)
+		return 0, err
 	}
 
-	// Persist the aggregate again.
-	return r.ctxGetter.DefaultTrOrDB(ctx, r.db).Save(r.mapper.fromDomainRestaurant(restaurant)).Error
+	// Persist the aggregate again. If the aggregate doesn't exist in the database in the first place
+	// en error will happen (inserting the menu items or the restaurant, it doesn't matter) and the
+	// affected rows will be zero (that's exactly what we want).
+	result := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Save(r.mapper.fromDomainRestaurant(restaurant))
+
+	return result.RowsAffected, result.Error
 }
 
 // Delete deletes a restaurant and its relations from the database.
-func (r *RestaurantPostgresRepository) Delete(ctx context.Context, restaurantId uint64) error {
-	return r.ctxGetter.DefaultTrOrDB(ctx, r.db).Select(clause.Associations).Delete(&Restaurant{ID: restaurantId}).Error
+func (r *RestaurantPostgresRepository) Delete(ctx context.Context, restaurantId int64) (int64, error) {
+	result := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Select(clause.Associations).Delete(&Restaurant{ID: restaurantId})
+	return result.RowsAffected, result.Error
 }
 
 // executeWithTimer executes a function using a tally timer if present.

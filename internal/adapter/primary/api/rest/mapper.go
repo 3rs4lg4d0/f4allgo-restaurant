@@ -80,7 +80,7 @@ func (dm DefaultMapper) toDomainRestaurants(restaurants []*Restaurant) []*domain
 // FromDomainRestaurant maps a domain.Restaurant struct into a Restaurant.
 func (dm DefaultMapper) fromDomainRestaurant(r *domain.Restaurant) *Restaurant {
 	restRestaurant := Restaurant{}
-	restRestaurant.Id = int64(r.Id)
+	restRestaurant.Id = r.Id
 	restRestaurant.Name = r.Name
 	restRestaurant.Address = dm.fromDomainAddress(r.Address)
 	restRestaurant.Menu = dm.fromDomainMenu(r.Menu)

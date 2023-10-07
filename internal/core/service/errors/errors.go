@@ -15,7 +15,7 @@ func (r *RestaurantNotFoundError) Error() string {
 }
 
 // RepositoryError is returned when an unexpected error occurr using
-// repositories. Use it as the default option if no specific error applies.
+// repositories.
 type RepositoryError struct {
 	err error
 }
@@ -29,7 +29,7 @@ func (r *RepositoryError) Error() string {
 }
 
 // EventPublisherError is returned when an unexpected error occur using
-// event publishers. Use it as the default option if no specific error applies.
+// event publishers.
 type EventPublisherError struct {
 	err error
 }
@@ -39,5 +39,19 @@ func NewEventPublisherError(err error) *EventPublisherError {
 }
 
 func (e *EventPublisherError) Error() string {
+	return e.err.Error()
+}
+
+// CoreError is returned when an unexpected error occur executing a core
+// domain operation.
+type CoreError struct {
+	err error
+}
+
+func NewCoreError(err error) *CoreError {
+	return &CoreError{err: err}
+}
+
+func (e *CoreError) Error() string {
 	return e.err.Error()
 }

@@ -66,7 +66,7 @@ func (r *OutboxPostgresRepository) Save(ctx context.Context, event domain.Domain
 		outboxRow = &Outbox{
 			Id:            uuid.New(),
 			AggregateType: restaurantAggregateType,
-			AggregateId:   strconv.FormatUint(e.Restaurant.Id, 10),
+			AggregateId:   strconv.FormatInt(e.Restaurant.Id, 10),
 			EventType:     e.GetType(),
 		}
 		avroRecord = r.mapper.fromRestaurantCreated(e)
@@ -74,7 +74,7 @@ func (r *OutboxPostgresRepository) Save(ctx context.Context, event domain.Domain
 		outboxRow = &Outbox{
 			Id:            uuid.New(),
 			AggregateType: restaurantAggregateType,
-			AggregateId:   strconv.FormatUint(e.RestaurantId, 10),
+			AggregateId:   strconv.FormatInt(e.RestaurantId, 10),
 			EventType:     e.GetType(),
 		}
 		avroRecord = r.mapper.fromRestaurantDeleted(e)
@@ -82,7 +82,7 @@ func (r *OutboxPostgresRepository) Save(ctx context.Context, event domain.Domain
 		outboxRow = &Outbox{
 			Id:            uuid.New(),
 			AggregateType: restaurantAggregateType,
-			AggregateId:   strconv.FormatUint(e.RestaurantId, 10),
+			AggregateId:   strconv.FormatInt(e.RestaurantId, 10),
 			EventType:     e.GetType(),
 		}
 		avroRecord = r.mapper.fromRestaurantMenuUpdated(e)

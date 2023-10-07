@@ -11,6 +11,9 @@ type Mapper interface {
 	// fromDomainRestaurant maps a domain.Restaurant struct into a Restaurant.
 	fromDomainRestaurant(restaurant *domain.Restaurant) *Restaurant
 
+	// fromDomainRestaurants maps a slice of domain.Restaurant into a slice of Restaurant.
+	fromDomainRestaurants(restaurant []*domain.Restaurant) []*Restaurant
+
 	// fromDomainAddress maps a domain.Address struct into an Address
 	fromDomainAddress(address *domain.Address) *Address
 
@@ -20,14 +23,14 @@ type Mapper interface {
 	// toDomainRestaurant maps a Restaurant struct into a domain.Restaurant.
 	toDomainRestaurant(restaurantDto *Restaurant) *domain.Restaurant
 
+	// toDomainRestaurants maps a slice of Restaurant into a slice of domain.Restaurant.
+	toDomainRestaurants(restaurants []*Restaurant) []*domain.Restaurant
+
 	// toDomainAddress maps a Address struct into a domain.Address.
 	toDomainAddress(address *Address) *domain.Address
 
 	// toDomainMenu maps a Menu struct into a domain.Menu.
 	toDomainMenu(menuItems []*MenuItem) *domain.Menu
-
-	// toDomainRestaurants maps a slice of Restaurant into a slice of domain.Restaurant.
-	toDomainRestaurants(restaurants []*Restaurant) []*domain.Restaurant
 }
 
 // DefaultMapper is the default implementation of Mapper.
@@ -38,14 +41,35 @@ type DefaultMapper struct{}
 var _ Mapper = (*DefaultMapper)(nil)
 
 func (dm DefaultMapper) fromDomainRestaurant(restaurant *domain.Restaurant) *Restaurant {
+	if restaurant == nil {
+		return nil
+	}
 	return &Restaurant{ID: restaurant.Id, Name: restaurant.Name, Address: dm.fromDomainAddress(restaurant.Address), Menu: dm.fromDomainMenu(restaurant.Menu)}
 }
 
+func (dm DefaultMapper) fromDomainRestaurants(restaurants []*domain.Restaurant) []*Restaurant {
+	if restaurants == nil {
+		return nil
+	}
+	dtoRestaurants := []*Restaurant{}
+	for _, restaurant := range restaurants {
+		dtoRestaurants = append(dtoRestaurants, dm.fromDomainRestaurant(restaurant))
+	}
+
+	return dtoRestaurants
+}
+
 func (DefaultMapper) fromDomainAddress(address *domain.Address) *Address {
+	if address == nil {
+		return nil
+	}
 	return &Address{Street: address.Street(), City: address.City(), State: address.State(), Zip: address.Zip()}
 }
 
 func (DefaultMapper) fromDomainMenu(menu *domain.Menu) []*MenuItem {
+	if menu == nil {
+		return nil
+	}
 	dtoItems := []*MenuItem{}
 	for _, item := range menu.GetItems() {
 		dtoItems = append(dtoItems, &MenuItem{Id: int32(item.GetId()), Name: item.GetName(), Price: item.GetPrice().Text('f', 2)})
@@ -55,6 +79,9 @@ func (DefaultMapper) fromDomainMenu(menu *domain.Menu) []*MenuItem {
 }
 
 func (dm DefaultMapper) toDomainRestaurant(restaurantDto *Restaurant) *domain.Restaurant {
+	if restaurantDto == nil {
+		return nil
+	}
 	domainRestaurant := domain.Restaurant{}
 	domainRestaurant.Id = restaurantDto.ID
 	domainRestaurant.Name = restaurantDto.Name
@@ -64,7 +91,22 @@ func (dm DefaultMapper) toDomainRestaurant(restaurantDto *Restaurant) *domain.Re
 	return &domainRestaurant
 }
 
+func (dm DefaultMapper) toDomainRestaurants(restaurants []*Restaurant) []*domain.Restaurant {
+	if restaurants == nil {
+		return nil
+	}
+	domainRestaurants := []*domain.Restaurant{}
+	for _, restaurant := range restaurants {
+		domainRestaurants = append(domainRestaurants, dm.toDomainRestaurant(restaurant))
+	}
+
+	return domainRestaurants
+}
+
 func (DefaultMapper) toDomainAddress(address *Address) *domain.Address {
+	if address == nil {
+		return nil
+	}
 	return domain.NewAddress(
 		address.Street,
 		address.City,
@@ -73,6 +115,9 @@ func (DefaultMapper) toDomainAddress(address *Address) *domain.Address {
 }
 
 func (DefaultMapper) toDomainMenu(menuItems []*MenuItem) *domain.Menu {
+	if menuItems == nil {
+		return nil
+	}
 	domainItems := []*domain.MenuItem{}
 	for _, item := range menuItems {
 		f := new(big.Float)
@@ -81,13 +126,4 @@ func (DefaultMapper) toDomainMenu(menuItems []*MenuItem) *domain.Menu {
 	}
 
 	return domain.NewMenu(domainItems)
-}
-
-func (dm DefaultMapper) toDomainRestaurants(restaurants []*Restaurant) []*domain.Restaurant {
-	domainRestaurants := []*domain.Restaurant{}
-	for _, restaurant := range restaurants {
-		domainRestaurants = append(domainRestaurants, dm.toDomainRestaurant(restaurant))
-	}
-
-	return domainRestaurants
 }

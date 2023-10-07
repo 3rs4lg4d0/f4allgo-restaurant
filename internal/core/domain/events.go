@@ -30,13 +30,13 @@ func (r *RestaurantCreated) GetType() string {
 
 // RestaurantDeleted event is raised every time a restaurant is deleted.
 type RestaurantDeleted struct {
-	RestaurantId uint64
+	RestaurantId int64
 }
 
 // Interface compliance verification.
 var _ DomainEvent = (*RestaurantDeleted)(nil)
 
-func NewRestaurantDeleted(restaurantId uint64) *RestaurantDeleted {
+func NewRestaurantDeleted(restaurantId int64) *RestaurantDeleted {
 	return &RestaurantDeleted{RestaurantId: restaurantId}
 }
 
@@ -50,14 +50,14 @@ func (r *RestaurantDeleted) GetType() string {
 
 // RestaurantMenuUpdated event is raised every time a restaurant updates its menu.
 type RestaurantMenuUpdated struct {
-	RestaurantId uint64
+	RestaurantId int64
 	Menu         *Menu
 }
 
 // Interface compliance verification.
 var _ DomainEvent = (*RestaurantMenuUpdated)(nil)
 
-func NewRestaurantMenuUpdated(restaurantId uint64, menu *Menu) *RestaurantMenuUpdated {
+func NewRestaurantMenuUpdated(restaurantId int64, menu *Menu) *RestaurantMenuUpdated {
 	return &RestaurantMenuUpdated{RestaurantId: restaurantId, Menu: menu}
 }
 
