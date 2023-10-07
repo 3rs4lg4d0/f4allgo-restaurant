@@ -26,7 +26,7 @@ var _ Mapper = (*DefaultMapper)(nil)
 
 func (dm DefaultMapper) fromRestaurantCreated(event *domain.RestaurantCreated) *avro.RestaurantCreatedAvro {
 	return &avro.RestaurantCreatedAvro{
-		Id:      int64(event.Restaurant.Id),
+		Id:      event.Restaurant.Id,
 		Name:    event.Restaurant.Name,
 		Address: dm.fromDomainAddress(event.Restaurant.Address),
 		Menu:    dm.fromDomainMenu(event.Restaurant.Menu),
@@ -35,13 +35,13 @@ func (dm DefaultMapper) fromRestaurantCreated(event *domain.RestaurantCreated) *
 
 func (dm DefaultMapper) fromRestaurantDeleted(event *domain.RestaurantDeleted) *avro.RestaurantDeletedAvro {
 	return &avro.RestaurantDeletedAvro{
-		RestaurantId: int64(event.RestaurantId),
+		RestaurantId: event.RestaurantId,
 	}
 }
 
 func (dm DefaultMapper) fromRestaurantMenuUpdated(event *domain.RestaurantMenuUpdated) *avro.RestaurantMenuUpdatedAvro {
 	return &avro.RestaurantMenuUpdatedAvro{
-		RestaurantId: int64(event.RestaurantId),
+		RestaurantId: event.RestaurantId,
 		Menu:         dm.fromDomainMenu(event.Menu),
 	}
 }
@@ -57,7 +57,7 @@ func (dm DefaultMapper) fromDomainAddress(address *domain.Address) avro.AdressAv
 func (dm DefaultMapper) fromDomainMenu(menu *domain.Menu) avro.MenuAvro {
 	avroItems := []avro.MenuItemAvro{}
 	for _, item := range menu.GetItems() {
-		avroItems = append(avroItems, avro.MenuItemAvro{Id: int64(item.GetId()), Name: item.GetName(), Price: []byte(item.GetPrice().Text('f', 2))})
+		avroItems = append(avroItems, avro.MenuItemAvro{Id: int32(item.GetId()), Name: item.GetName(), Price: []byte(item.GetPrice().Text('f', 2))})
 	}
 	return avro.MenuAvro{
 		Items: avroItems,

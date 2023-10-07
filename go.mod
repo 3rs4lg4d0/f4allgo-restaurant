@@ -3,6 +3,7 @@ module f4allgo-restaurant
 go 1.20
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/avito-tech/go-transaction-manager v1.4.0
 	github.com/confluentinc/confluent-kafka-go v1.9.2

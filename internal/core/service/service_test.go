@@ -6,425 +6,461 @@ import (
 	"f4allgo-restaurant/internal/core/domain"
 	coreerrors "f4allgo-restaurant/internal/core/service/errors"
 	"f4allgo-restaurant/internal/core/service/mocks"
+	"f4allgo-restaurant/test"
 	"math/big"
 	"reflect"
 	"testing"
 
-	"github.com/avito-tech/go-transaction-manager/trm"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-func TestDefaultRestaurantService_FindAll(t *testing.T) {
+func TestFindAll(t *testing.T) {
 	type args struct {
-		ctx context.Context
+		ctx    context.Context
+		offset int
+		limit  int
 	}
-	tests := []struct {
-		name         string
-		expectations func(repository *mocks.MockRestaurantRepository)
-		args         args
-		want         []*domain.Restaurant
-		wantErr      bool
+	testcases := []struct {
+		name             string
+		args             args
+		mockExpectations func(args, *mocks.MockRestaurantRepository)
+		wantRestaurants  []*domain.Restaurant
+		wantTotal        int64
+		wantErr          bool
+		wantErrType      error
 	}{
 		{
-			name: "When RestaurantRepository returns an empty slice",
-			expectations: func(repository *mocks.MockRestaurantRepository) {
-				repository.EXPECT().FindAll(context.Background(), 0, 100).Return(make([]*domain.Restaurant, 0), 0, nil).Once()
-			},
+			name: "mock a successful execution",
 			args: args{
-				ctx: context.Background(),
+				ctx:    context.Background(),
+				offset: 0,
+				limit:  100,
 			},
-			want:    make([]*domain.Restaurant, 0),
-			wantErr: false,
+			mockExpectations: func(args args, repository *mocks.MockRestaurantRepository) {
+				repository.EXPECT().FindAll(args.ctx, args.offset, args.limit).Return([]*domain.Restaurant{newTestRestaurant()}, int64(10), nil).Once()
+			},
+			wantRestaurants: []*domain.Restaurant{newTestRestaurant()},
+			wantTotal:       10,
+			wantErr:         false,
 		},
 		{
-			name: "When RestaurantRepository returns an error",
-			expectations: func(repository *mocks.MockRestaurantRepository) {
-				repository.EXPECT().FindAll(context.Background(), 0, 100).Return(nil, 0, errors.New("error")).Once()
-			},
+			name: "mock a failure execution",
 			args: args{
-				ctx: context.Background(),
+				ctx:    context.Background(),
+				offset: 0,
+				limit:  100,
 			},
-			want:    nil,
-			wantErr: true,
+			mockExpectations: func(args args, repository *mocks.MockRestaurantRepository) {
+				repository.EXPECT().FindAll(args.ctx, args.offset, args.limit).Return(nil, 0, errors.New("error")).Once()
+			},
+			wantRestaurants: nil,
+			wantTotal:       0,
+			wantErr:         true,
+			wantErrType:     &coreerrors.RepositoryError{},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
 			mockRepository := mocks.NewMockRestaurantRepository(t)
-			tt.expectations(mockRepository)
-
+			tc.mockExpectations(tc.args, mockRepository)
 			rs := NewDefaultRestaurantService(mockRepository, nil, nil)
-			got, _, err := rs.FindAll(tt.args.ctx, 0, 100)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("DefaultRestaurantService.FindAll() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("DefaultRestaurantService.FindAll() = %v, want %v", got, tt.want)
+			actualRestaurants, actualTotal, err := rs.FindAll(tc.args.ctx, 0, 100)
+			if !tc.wantErr {
+				assert.NoError(t, err)
+				assert.True(t, reflect.DeepEqual(tc.wantRestaurants, actualRestaurants))
+				assert.Equal(t, tc.wantTotal, actualTotal)
+			} else {
+				assert.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 			}
 		})
 	}
 }
 
-func TestDefaultRestaurantService_Create(t *testing.T) {
-	type mockFields struct {
-		restaurantRepository *mocks.MockRestaurantRepository
-		domainEventPublisher *mocks.MockDomainEventPublisher
+func TestFindById(t *testing.T) {
+	type args struct {
+		ctx          context.Context
+		restaurantId int64
 	}
+	testcases := []struct {
+		name             string
+		args             args
+		mockExpectations func(args, *mocks.MockRestaurantRepository)
+		wantRestaurant   *domain.Restaurant
+		wantErr          bool
+		wantErrType      error
+	}{
+		{
+			name: "mock a successful execution",
+			args: args{
+				ctx:          context.Background(),
+				restaurantId: 1000,
+			},
+			mockExpectations: func(args args, repository *mocks.MockRestaurantRepository) {
+				repository.EXPECT().FindById(args.ctx, args.restaurantId, true).Return(newTestRestaurant(), nil).Once()
+			},
+			wantRestaurant: newTestRestaurant(),
+			wantErr:        false,
+		},
+		{
+			name: "mock record not found",
+			args: args{
+				ctx: context.Background(),
+			},
+			mockExpectations: func(args args, repository *mocks.MockRestaurantRepository) {
+				repository.EXPECT().FindById(args.ctx, args.restaurantId, true).Return(nil, errors.New("record not found")).Once()
+			},
+			wantRestaurant: nil,
+			wantErr:        true,
+			wantErrType:    &coreerrors.RestaurantNotFoundError{},
+		},
+		{
+			name: "mock generic repository error",
+			args: args{
+				ctx: context.Background(),
+			},
+			mockExpectations: func(args args, repository *mocks.MockRestaurantRepository) {
+				repository.EXPECT().FindById(args.ctx, args.restaurantId, true).Return(nil, errors.New("error#1")).Once()
+			},
+			wantRestaurant: nil,
+			wantErr:        true,
+			wantErrType:    &coreerrors.RepositoryError{},
+		},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepository := mocks.NewMockRestaurantRepository(t)
+			tc.mockExpectations(tc.args, mockRepository)
+			rs := NewDefaultRestaurantService(mockRepository, nil, nil)
+			actualRestaurant, err := rs.FindById(tc.args.ctx, tc.args.restaurantId)
+			if !tc.wantErr {
+				assert.NoError(t, err)
+				assert.True(t, reflect.DeepEqual(tc.wantRestaurant, actualRestaurant))
+			} else {
+				assert.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
+			}
+		})
+	}
+}
+
+func TestCreate(t *testing.T) {
 	type args struct {
 		ctx        context.Context
 		restaurant *domain.Restaurant
 	}
-	tests := []struct {
-		name         string
-		expectations func(args args, mocks mockFields)
-		args         args
-		wantErr      bool
-		assertions   func(mocks mockFields)
+	testcases := []struct {
+		name                 string
+		args                 args
+		mockExpectations     func(args, *mocks.MockRestaurantRepository, *mocks.MockDomainEventPublisher)
+		wantErr              bool
+		wantErrType          error
+		additionalAssertions func(args, *mocks.MockRestaurantRepository, *mocks.MockDomainEventPublisher)
 	}{
 		{
-			name: "When RestaurantRepository and DomainEventPublisher succeed",
-			expectations: func(args args, mocks mockFields) {
-				mocks.restaurantRepository.EXPECT().Save(args.ctx, args.restaurant).Return(nil).Once()
-				mocks.domainEventPublisher.EXPECT().Publish(args.ctx, domain.NewRestaurantCreated(args.restaurant)).Return(nil).Once()
-			},
+			name: "mock a successful execution",
 			args: args{
 				ctx:        context.Background(),
-				restaurant: &domain.Restaurant{},
+				restaurant: newTestRestaurant(),
+			},
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().Save(args.ctx, args.restaurant).Return(nil).Once()
+				mp.EXPECT().Publish(args.ctx, domain.NewRestaurantCreated(args.restaurant)).Return(nil).Once()
 			},
 			wantErr: false,
 		},
 		{
-			name: "When DomainEventPublisher fails",
-			expectations: func(args args, mocks mockFields) {
-				mocks.restaurantRepository.EXPECT().Save(args.ctx, args.restaurant).Return(nil).Once()
-				mocks.domainEventPublisher.EXPECT().Publish(args.ctx, domain.NewRestaurantCreated(args.restaurant)).Return(errors.New("error")).Once()
-			},
+			name: "mock a DomainEventPublisher failure",
 			args: args{
 				ctx:        context.Background(),
-				restaurant: &domain.Restaurant{},
+				restaurant: newTestRestaurant(),
 			},
-			wantErr: true,
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().Save(args.ctx, args.restaurant).Return(nil).Once()
+				mp.EXPECT().Publish(args.ctx, domain.NewRestaurantCreated(args.restaurant)).Return(errors.New("error")).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.EventPublisherError{},
 		},
 		{
-			name: "When RestaurantRepository fails",
-			expectations: func(args args, mocks mockFields) {
-				mocks.restaurantRepository.EXPECT().Save(args.ctx, args.restaurant).Return(errors.New("error")).Once()
-			},
+			name: "mock a RestaurantRepository failure",
 			args: args{
 				ctx:        context.Background(),
 				restaurant: &domain.Restaurant{},
 			},
-			wantErr: true,
-			assertions: func(mocks mockFields) {
-				mocks.domainEventPublisher.AssertNotCalled(t, "Publish")
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().Save(args.ctx, args.restaurant).Return(errors.New("error")).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.RepositoryError{},
+			additionalAssertions: func(args args, _ *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mp.AssertNotCalled(t, "Publish", mock.Anything, mock.Anything)
 			},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := mockFields{
-				restaurantRepository: mocks.NewMockRestaurantRepository(t),
-				domainEventPublisher: mocks.NewMockDomainEventPublisher(t),
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			mr := mocks.NewMockRestaurantRepository(t)
+			mp := mocks.NewMockDomainEventPublisher(t)
+			tc.mockExpectations(tc.args, mr, mp)
+			rs := NewDefaultRestaurantService(mr, mp, test.NewNopTrManager())
+			err := rs.Create(tc.args.ctx, tc.args.restaurant)
+			if !tc.wantErr {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 			}
-			tt.expectations(tt.args, m)
-			rs := &DefaultRestaurantService{
-				restaurantRepository: m.restaurantRepository,
-				domainEventPublisher: m.domainEventPublisher,
-				trManager:            &mockTrManager{},
-			}
-			if err := rs.Create(tt.args.ctx, tt.args.restaurant); (err != nil) != tt.wantErr {
-				t.Errorf("DefaultRestaurantService.Create() error = %v, wantErr %v", err, tt.wantErr)
-			}
-			if tt.assertions != nil {
-				tt.assertions(m)
+			if tc.additionalAssertions != nil {
+				tc.additionalAssertions(tc.args, mr, mp)
 			}
 		})
 	}
 }
 
-func TestDefaultRestaurantService_UpdateMenu(t *testing.T) {
-	type mockFields struct {
-		restaurantRepository *mocks.MockRestaurantRepository
-		domainEventPublisher *mocks.MockDomainEventPublisher
-	}
+func TestUpdateMenu(t *testing.T) {
 	type args struct {
 		ctx          context.Context
-		restaurantId uint64
+		restaurantId int64
 		menu         *domain.Menu
 	}
-	tests := []struct {
-		name         string
-		expectations func(args args, mocks mockFields)
-		args         args
-		wantErr      bool
-		assertions   func(mocks mockFields)
+	testcases := []struct {
+		name                 string
+		args                 args
+		mockExpectations     func(args, *mocks.MockRestaurantRepository, *mocks.MockDomainEventPublisher)
+		wantErr              bool
+		wantErrType          error
+		additionalAssertions func(args, *mocks.MockRestaurantRepository, *mocks.MockDomainEventPublisher)
 	}{
 		{
-			name: "When RestaurantRepository and DomainEventPublisher succeed",
-			expectations: func(args args, mocks mockFields) {
-				restaurant := &domain.Restaurant{}
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(restaurant, nil).Once()
-				mocks.restaurantRepository.EXPECT().Update(args.ctx, restaurant).Return(nil).Once()
-				mocks.domainEventPublisher.EXPECT().Publish(args.ctx, domain.NewRestaurantMenuUpdated(args.restaurantId, args.menu)).Return(nil).Once()
-			},
+			name: "mock a successful execution",
 			args: args{
 				ctx:          context.Background(),
-				restaurantId: 1,
+				restaurantId: 1000,
 				menu:         domain.NewMenu([]*domain.MenuItem{domain.NewMenuItem(1, "one", big.NewFloat(1.0))}),
+			},
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				r := newTestRestaurant()
+				mr.EXPECT().FindById(args.ctx, args.restaurantId, false).Return(r, nil).Once()
+				rr := &domain.Restaurant{Id: r.Id, Name: r.Name, Address: r.Address, Menu: args.menu}
+				mr.EXPECT().Update(args.ctx, rr).Return(1, nil).Once()
+				mp.EXPECT().Publish(args.ctx, domain.NewRestaurantMenuUpdated(args.restaurantId, args.menu)).Return(nil).Once()
 			},
 			wantErr: false,
 		},
 		{
-			name: "When DomainEventPublisher fails",
-			expectations: func(args args, mocks mockFields) {
-				restaurant := &domain.Restaurant{}
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(restaurant, nil).Once()
-				mocks.restaurantRepository.EXPECT().Update(args.ctx, restaurant).Return(nil).Once()
-				mocks.domainEventPublisher.EXPECT().Publish(args.ctx, domain.NewRestaurantMenuUpdated(args.restaurantId, args.menu)).Return(errors.New("error")).Once()
-			},
+			name: "mock a DomainEventPublisher failure",
 			args: args{
 				ctx:          context.Background(),
-				restaurantId: 1,
+				restaurantId: 1000,
 				menu:         domain.NewMenu([]*domain.MenuItem{domain.NewMenuItem(1, "one", big.NewFloat(1.0))}),
 			},
-			wantErr: true,
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				r := newTestRestaurant()
+				mr.EXPECT().FindById(args.ctx, args.restaurantId, false).Return(r, nil).Once()
+				rr := &domain.Restaurant{Id: r.Id, Name: r.Name, Address: r.Address, Menu: args.menu}
+				mr.EXPECT().Update(args.ctx, rr).Return(1, nil).Once()
+				mp.EXPECT().Publish(args.ctx, domain.NewRestaurantMenuUpdated(args.restaurantId, args.menu)).Return(errors.New("error")).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.EventPublisherError{},
 		},
 		{
-			name: "When RestaurantRepository fails updating the restaurant",
-			expectations: func(args args, mocks mockFields) {
-				restaurant := &domain.Restaurant{}
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(restaurant, nil).Once()
-				mocks.restaurantRepository.EXPECT().Update(args.ctx, restaurant).Return(errors.New("error")).Once()
-			},
+			name: "mock a RestaurantRepository failure when updating",
 			args: args{
 				ctx:          context.Background(),
-				restaurantId: 1,
+				restaurantId: 1000,
 				menu:         domain.NewMenu([]*domain.MenuItem{domain.NewMenuItem(1, "one", big.NewFloat(1.0))}),
 			},
-			wantErr: true,
-			assertions: func(mocks mockFields) {
-				mocks.domainEventPublisher.AssertNotCalled(t, "Publish")
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				r := newTestRestaurant()
+				mr.EXPECT().FindById(args.ctx, args.restaurantId, false).Return(r, nil).Once()
+				rr := &domain.Restaurant{Id: r.Id, Name: r.Name, Address: r.Address, Menu: args.menu}
+				mr.EXPECT().Update(args.ctx, rr).Return(1, errors.New("error")).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.RepositoryError{},
+			additionalAssertions: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mp.AssertNotCalled(t, "Publish", mock.Anything, mock.Anything)
 			},
 		},
 		{
-			name: "When invalid menu",
-			expectations: func(args args, mocks mockFields) {
-				restaurant := &domain.Restaurant{}
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(restaurant, nil).Once()
-			},
+			name: "provide an invalid menu not compliant with invariants",
 			args: args{
 				ctx:          context.Background(),
-				restaurantId: 1,
+				restaurantId: 1000,
 				menu:         &domain.Menu{},
 			},
-			wantErr: true,
-			assertions: func(mocks mockFields) {
-				mocks.restaurantRepository.AssertNotCalled(t, "Update")
-				mocks.domainEventPublisher.AssertNotCalled(t, "Publish")
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, _ *mocks.MockDomainEventPublisher) {
+				restaurant := newTestRestaurant()
+				mr.EXPECT().FindById(args.ctx, args.restaurantId, false).Return(restaurant, nil).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.CoreError{},
+			additionalAssertions: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				restaurant := newTestRestaurant()
+				restaurant.Menu = args.menu
+				mr.AssertNotCalled(t, "Update", mock.Anything, mock.Anything)
+				mp.AssertNotCalled(t, "Publish", mock.Anything, mock.Anything)
 			},
 		},
 		{
-			name: "When RestaurantRepository fails finding the restaurant",
-			expectations: func(args args, mocks mockFields) {
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(nil, errors.New("error")).Once()
-			},
+			name: "mock a RestaurantRepository failure when fetching",
 			args: args{
 				ctx:          context.Background(),
-				restaurantId: 1,
+				restaurantId: 1000,
 				menu:         domain.NewMenu([]*domain.MenuItem{domain.NewMenuItem(1, "one", big.NewFloat(1.0))}),
 			},
-			wantErr: true,
-			assertions: func(mocks mockFields) {
-				mocks.restaurantRepository.AssertNotCalled(t, "Update")
-				mocks.domainEventPublisher.AssertNotCalled(t, "Publish")
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, _ *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().FindById(args.ctx, args.restaurantId, false).Return(nil, errors.New("error")).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.RepositoryError{},
+			additionalAssertions: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.AssertNotCalled(t, "Update", mock.Anything, mock.Anything)
+				mp.AssertNotCalled(t, "Publish", mock.Anything, mock.Anything)
 			},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := mockFields{
-				restaurantRepository: mocks.NewMockRestaurantRepository(t),
-				domainEventPublisher: mocks.NewMockDomainEventPublisher(t),
-			}
-			tt.expectations(tt.args, m)
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			mr := mocks.NewMockRestaurantRepository(t)
+			mp := mocks.NewMockDomainEventPublisher(t)
+			tc.mockExpectations(tc.args, mr, mp)
 			rs := &DefaultRestaurantService{
-				restaurantRepository: m.restaurantRepository,
-				domainEventPublisher: m.domainEventPublisher,
-				trManager:            &mockTrManager{},
+				restaurantRepository: mr,
+				domainEventPublisher: mp,
+				trManager:            test.NewNopTrManager(),
 			}
-			if err := rs.UpdateMenu(tt.args.ctx, tt.args.restaurantId, tt.args.menu); (err != nil) != tt.wantErr {
-				t.Errorf("DefaultRestaurantService.UpdateMenu() error = %v, wantErr %v", err, tt.wantErr)
+			err := rs.UpdateMenu(tc.args.ctx, tc.args.restaurantId, tc.args.menu)
+			if !tc.wantErr {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 			}
-			if tt.assertions != nil {
-				tt.assertions(m)
+			if tc.additionalAssertions != nil {
+				tc.additionalAssertions(tc.args, mr, mp)
 			}
 		})
 	}
 }
 
-func TestDefaultRestaurantService_DeleteMenu(t *testing.T) {
-	type mockFields struct {
-		restaurantRepository *mocks.MockRestaurantRepository
-		domainEventPublisher *mocks.MockDomainEventPublisher
-	}
+func TestDelete(t *testing.T) {
 	type args struct {
 		ctx          context.Context
-		restaurantId uint64
+		restaurantId int64
 	}
-	tests := []struct {
-		name         string
-		expectations func(args args, mocks mockFields)
-		args         args
-		wantErr      bool
-		assertions   func(mocks mockFields)
+	testcases := []struct {
+		name                 string
+		args                 args
+		mockExpectations     func(args, *mocks.MockRestaurantRepository, *mocks.MockDomainEventPublisher)
+		wantErr              bool
+		wantErrType          error
+		additionalAssertions func(args, *mocks.MockRestaurantRepository, *mocks.MockDomainEventPublisher)
 	}{
 		{
-			name: "When RestaurantRepository and DomainEventPublisher succeed",
-			expectations: func(args args, mocks mockFields) {
-				restaurant := &domain.Restaurant{}
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(restaurant, nil).Once()
-				mocks.restaurantRepository.EXPECT().Delete(args.ctx, args.restaurantId).Return(nil).Once()
-				mocks.domainEventPublisher.EXPECT().Publish(args.ctx, domain.NewRestaurantDeleted(args.restaurantId)).Return(nil).Once()
-			},
+			name: "mock a successful execution",
 			args: args{
 				ctx:          context.Background(),
 				restaurantId: 1,
+			},
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().Delete(args.ctx, args.restaurantId).Return(1, nil).Once()
+				mp.EXPECT().Publish(args.ctx, domain.NewRestaurantDeleted(args.restaurantId)).Return(nil).Once()
 			},
 			wantErr: false,
 		},
 		{
-			name: "When DomainEventPublisher fails",
-			expectations: func(args args, mocks mockFields) {
-				restaurant := &domain.Restaurant{}
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(restaurant, nil).Once()
-				mocks.restaurantRepository.EXPECT().Delete(args.ctx, args.restaurantId).Return(nil).Once()
-				mocks.domainEventPublisher.EXPECT().Publish(args.ctx, domain.NewRestaurantDeleted(args.restaurantId)).Return(errors.New("error")).Once()
-			},
+			name: "mock a DomainEventPublisher failure",
 			args: args{
 				ctx:          context.Background(),
 				restaurantId: 1,
 			},
-			wantErr: true,
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().Delete(args.ctx, args.restaurantId).Return(1, nil).Once()
+				mp.EXPECT().Publish(args.ctx, domain.NewRestaurantDeleted(args.restaurantId)).Return(errors.New("error")).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.EventPublisherError{},
 		},
 		{
-			name: "When RestaurantRepository fails deleting",
-			expectations: func(args args, mocks mockFields) {
-				restaurant := &domain.Restaurant{}
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(restaurant, nil).Once()
-				mocks.restaurantRepository.EXPECT().Delete(args.ctx, args.restaurantId).Return(errors.New("error")).Once()
-			},
+			name: "mock a RestaurantRepository failure",
 			args: args{
 				ctx:          context.Background(),
 				restaurantId: 1,
 			},
-			wantErr: true,
-			assertions: func(mocks mockFields) {
-				mocks.domainEventPublisher.AssertNotCalled(t, "Publish")
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().Delete(args.ctx, args.restaurantId).Return(1, errors.New("error")).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.RepositoryError{},
+			additionalAssertions: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mp.AssertNotCalled(t, "Publish", mock.Anything, mock.Anything)
 			},
 		},
 		{
-			name: "When RestaurantRepository fails finding the restaurant",
-			expectations: func(args args, mocks mockFields) {
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(nil, errors.New("error")).Once()
-			},
+			name: "mock a RestaurantNotFound failure",
 			args: args{
 				ctx:          context.Background(),
 				restaurantId: 1,
 			},
-			wantErr: true,
-			assertions: func(mocks mockFields) {
-				mocks.restaurantRepository.AssertNotCalled(t, "Delete")
-				mocks.domainEventPublisher.AssertNotCalled(t, "Publish")
+			mockExpectations: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mr.EXPECT().Delete(args.ctx, args.restaurantId).Return(0, nil).Once()
+			},
+			wantErr:     true,
+			wantErrType: &coreerrors.RestaurantNotFoundError{},
+			additionalAssertions: func(args args, mr *mocks.MockRestaurantRepository, mp *mocks.MockDomainEventPublisher) {
+				mp.AssertNotCalled(t, "Publish", mock.Anything, mock.Anything)
 			},
 		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := mockFields{
-				restaurantRepository: mocks.NewMockRestaurantRepository(t),
-				domainEventPublisher: mocks.NewMockDomainEventPublisher(t),
-			}
-			tt.expectations(tt.args, m)
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			mr := mocks.NewMockRestaurantRepository(t)
+			mp := mocks.NewMockDomainEventPublisher(t)
+			tc.mockExpectations(tc.args, mr, mp)
 			rs := &DefaultRestaurantService{
-				restaurantRepository: m.restaurantRepository,
-				domainEventPublisher: m.domainEventPublisher,
-				trManager:            &mockTrManager{},
+				restaurantRepository: mr,
+				domainEventPublisher: mp,
+				trManager:            test.NewNopTrManager(),
 			}
-			if err := rs.Delete(tt.args.ctx, tt.args.restaurantId); (err != nil) != tt.wantErr {
-				t.Errorf("DefaultRestaurantService.UpdateMenu() error = %v, wantErr %v", err, tt.wantErr)
+			err := rs.Delete(tc.args.ctx, tc.args.restaurantId)
+			if !tc.wantErr {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.IsType(t, tc.wantErrType, err)
 			}
-			if tt.assertions != nil {
-				tt.assertions(m)
+			if tc.additionalAssertions != nil {
+				tc.additionalAssertions(tc.args, mr, mp)
 			}
 		})
 	}
 }
 
-// mockTrManager mocks the transaction manager. It just calls the closure passed as
-// argument and return the result.
-type mockTrManager struct{}
+// --------------------------------------------------------------------------------
+// Utility functions to create restaurants and menus.
+// --------------------------------------------------------------------------------
 
-func (mtr *mockTrManager) Do(ctx context.Context, f func(ctx context.Context) error) error {
-	return f(ctx)
+func newTestRestaurant() *domain.Restaurant {
+	return &domain.Restaurant{Id: 1000, Name: "restaurant1", Address: newTestAddress(), Menu: newTestMenu()}
 }
 
-func (mtr *mockTrManager) DoWithSettings(ctx context.Context, _ trm.Settings, f func(ctx context.Context) error) error {
-	return f(ctx)
+func newTestAddress() *domain.Address {
+	return domain.NewAddress("street1", "city1", "state1", "zip1")
 }
 
-func TestDefaultRestaurantService_findById(t *testing.T) {
-	type mockFields struct {
-		restaurantRepository *mocks.MockRestaurantRepository
-	}
-	type args struct {
-		ctx          context.Context
-		restaurantId uint64
-	}
-	tests := []struct {
-		name             string
-		expectations     func(args args, mocks mockFields)
-		args             args
-		expectedError    error
-		expectedErrorMsg string
-	}{
-		{
-			name: "When RestaurantRepository fails finding the restaurant",
-			expectations: func(args args, mocks mockFields) {
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(nil, errors.New("customError")).Once()
-			},
-			args: args{
-				ctx:          context.Background(),
-				restaurantId: 1,
-			},
-			expectedError:    &coreerrors.RepositoryError{},
-			expectedErrorMsg: "customError",
-		},
-		{
-			name: "When RestaurantRepository returns no restaurant",
-			expectations: func(args args, mocks mockFields) {
-				mocks.restaurantRepository.EXPECT().FindById(args.ctx, args.restaurantId).Return(nil, nil).Once()
-			},
-			args: args{
-				ctx:          context.Background(),
-				restaurantId: 1,
-			},
-			expectedError:    &coreerrors.RestaurantNotFoundError{},
-			expectedErrorMsg: "restaurant not found",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := mockFields{
-				restaurantRepository: mocks.NewMockRestaurantRepository(t),
-			}
-			tt.expectations(tt.args, m)
-			rs := &DefaultRestaurantService{
-				restaurantRepository: m.restaurantRepository,
-			}
-			_, err := rs.findById(tt.args.ctx, tt.args.restaurantId)
-			assert.Equal(t, true, reflect.TypeOf(err) == reflect.TypeOf(tt.expectedError))
-			assert.Equal(t, tt.expectedErrorMsg, err.Error())
-		})
-	}
+func newTestMenu() *domain.Menu {
+	f := new(big.Float)
+	f.SetString("13.14")
+	item1 := domain.NewMenuItem(1, "item1.1", f)
+	f = new(big.Float)
+	f.SetString("14.15")
+	item2 := domain.NewMenuItem(1, "item1.2", f)
+	f = new(big.Float)
+	f.SetString("15.16")
+	item3 := domain.NewMenuItem(1, "item1.3", f)
+	return domain.NewMenu([]*domain.MenuItem{item1, item2, item3})
 }

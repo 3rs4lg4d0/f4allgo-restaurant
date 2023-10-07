@@ -44,3 +44,7 @@ type GetRestaurantsResponse struct {
 	Restaurants []*Restaurant `json:"restaurants"`
 	Total       int64         `json:"total"`
 }
+
+type GetRestaurantResponse struct {
+	Restaurant *Restaurant `json:"restaurant"`
+}

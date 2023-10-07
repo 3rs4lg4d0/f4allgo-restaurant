@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const RESTAURANT_ID_DESC string = "the restaurant id"
+
 type RestaurantCli struct {
 	mapper            Mapper
 	restaurantService port.RestaurantService
@@ -62,6 +64,19 @@ func (rc *RestaurantCli) Execute() error {
 	getRestaurantsCmd.PersistentFlags().String("offset", "", "the offset to use in pagination")
 	getRestaurantsCmd.PersistentFlags().String("limit", "", "the limit to use in pagination")
 
+	var getRestaurantCmd = &cobra.Command{
+		Use:   "restaurant",
+		Short: "Get restaurant",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			restaurantId, err := cmd.Flags().GetInt64("restaurantId")
+			if err != nil {
+				return err
+			}
+			return rc.getRestaurant(restaurantId)
+		},
+	}
+	getRestaurantsCmd.PersistentFlags().Int64("restaurantId", 0, RESTAURANT_ID_DESC)
+
 	var createRestaurantCmd = &cobra.Command{
 		Use:   "restaurant",
 		Short: "Create restaurant",
@@ -83,7 +98,7 @@ func (rc *RestaurantCli) Execute() error {
 		Use:   "menu",
 		Short: "Update restaurant menu",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			restaurantId, err := cmd.Flags().GetUint64("restaurantId")
+			restaurantId, err := cmd.Flags().GetInt64("restaurantId")
 			if err != nil {
 				return err
 			}
@@ -98,24 +113,25 @@ func (rc *RestaurantCli) Execute() error {
 			return rc.updateMenu(restaurantId, request)
 		},
 	}
-	updateRestaurantMenuCmd.PersistentFlags().Uint64("restaurantId", 0, "the restaurant id")
+	updateRestaurantMenuCmd.PersistentFlags().Int64("restaurantId", 0, RESTAURANT_ID_DESC)
 	updateRestaurantMenuCmd.PersistentFlags().String("json", "", "the JSON payload")
 
 	var deleteRestaurantCmd = &cobra.Command{
 		Use:   "restaurant",
 		Short: "Delete restaurant",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			restaurantId, err := cmd.Flags().GetUint64("restaurantId")
+			restaurantId, err := cmd.Flags().GetInt64("restaurantId")
 			if err != nil {
 				return err
 			}
 			return rc.deleteRestaurant(restaurantId)
 		},
 	}
-	deleteRestaurantCmd.PersistentFlags().Uint64("restaurantId", 0, "the restaurant id")
+	deleteRestaurantCmd.PersistentFlags().Int64("restaurantId", 0, RESTAURANT_ID_DESC)
 
 	// Subcommands for 'get'.
 	getCmd.AddCommand(getRestaurantsCmd)
+	getCmd.AddCommand(getRestaurantCmd)
 
 	// Subcommands for 'create'.
 	createCmd.AddCommand(createRestaurantCmd)
@@ -135,7 +151,7 @@ func (rc *RestaurantCli) Execute() error {
 	return rootCmd.Execute()
 }
 
-// CreateRestaurant creates a restaurant.
+// createRestaurant creates a restaurant.
 func (rc *RestaurantCli) createRestaurant(request CreateRestaurantRequest) error {
 	if err := rc.validate.Struct(request); err != nil {
 		return err
@@ -143,12 +159,12 @@ func (rc *RestaurantCli) createRestaurant(request CreateRestaurantRequest) error
 	return rc.restaurantService.Create(rc.ctx, rc.mapper.toDomainRestaurant(request.Restaurant))
 }
 
-// DeleteRestaurant deletes a restaurant.
-func (rc *RestaurantCli) deleteRestaurant(restaurantId uint64) error {
+// deleteRestaurant deletes a restaurant.
+func (rc *RestaurantCli) deleteRestaurant(restaurantId int64) error {
 	return rc.restaurantService.Delete(rc.ctx, restaurantId)
 }
 
-// GetRestaurants gets the list of all restaurants.
+// getRestaurants gets the list of all restaurants.
 func (rc *RestaurantCli) getRestaurants(offset int, limit int) error {
 	domainRestaurants, total, err := rc.restaurantService.FindAll(rc.ctx, offset, limit)
 	if err != nil {
@@ -158,8 +174,18 @@ func (rc *RestaurantCli) getRestaurants(offset int, limit int) error {
 	return printJSON(GetRestaurantsResponse{Restaurants: dtoRestaurants, Total: total})
 }
 
-// UpdateMenu updates the menu of a restaurant.
-func (rc *RestaurantCli) updateMenu(restaurantId uint64, request UpdateMenuRequest) error {
+// getRestaurant get a restaurant by its id.
+func (rc *RestaurantCli) getRestaurant(restaurantId int64) error {
+	domainRestaurant, err := rc.restaurantService.FindById(rc.ctx, restaurantId)
+	if err != nil {
+		return err
+	}
+	dtoRestaurant := rc.mapper.fromDomainRestaurant(domainRestaurant)
+	return printJSON(GetRestaurantResponse{Restaurant: dtoRestaurant})
+}
+
+// updateMenu updates the menu of a restaurant.
+func (rc *RestaurantCli) updateMenu(restaurantId int64, request UpdateMenuRequest) error {
 	if err := rc.validate.Struct(request); err != nil {
 		return err
 	}

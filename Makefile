@@ -40,11 +40,11 @@ test-coverage:
 
 .PHONY: run-service
 run-service:
-	@cd cmd/f4allgorestaurant-rest && ./f4allgorestaurant-rest
+	@cd cmd/f4allgorestaurant-rest && go run f4allgorestaurant-rest.go
 
 run-service-debug:
 	@export F4ALLGO_LOG_LEVEL=0 && export F4ALLGO_LOG_BEAUTIFY=true && \
-		cd cmd/f4allgorestaurant-rest && ./f4allgorestaurant-rest
+		cd cmd/f4allgorestaurant-rest && go run f4allgorestaurant-rest.go
 
 # -----------------------------------------------------------------------------
 # Action to migrate database. Use it when you need to test your SQL scripts.

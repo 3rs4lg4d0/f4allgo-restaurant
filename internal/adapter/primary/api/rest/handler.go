@@ -40,7 +40,7 @@ func (rh *RestaurantHandler) CreateRestaurant(ctx *gin.Context) {
 
 // DeleteRestaurant deletes a restaurant.
 func (rh *RestaurantHandler) DeleteRestaurant(ctx *gin.Context) {
-	restaurantId, err := strconv.ParseUint(ctx.Param("restaurantId"), 10, 64)
+	restaurantId, err := strconv.ParseInt(ctx.Param("restaurantId"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{})
 		return
@@ -67,9 +67,27 @@ func (rh *RestaurantHandler) GetRestaurants(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, GetRestaurantsResponse{Restaurants: dtoRestaurants, Total: total})
 }
 
+// GetRestaurant gets a restaurant by its ID.
+func (rh *RestaurantHandler) GetRestaurant(ctx *gin.Context) {
+	restaurantId, err := strconv.ParseInt(ctx.Param("restaurantId"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	domainRestaurant, err := rh.restaurantService.FindById(ctx, restaurantId)
+	if err != nil {
+		handleError(ctx, err)
+		return
+	}
+
+	dtoRestaurant := rh.mapper.fromDomainRestaurant(domainRestaurant)
+	ctx.JSON(http.StatusOK, GetRestaurantResponse{Restaurant: dtoRestaurant})
+}
+
 // UpdateMenu updates the menu of a restaurant.
 func (rh *RestaurantHandler) UpdateMenu(ctx *gin.Context) {
-	restaurantId, err := strconv.ParseUint(ctx.Param("restaurantId"), 10, 64)
+	restaurantId, err := strconv.ParseInt(ctx.Param("restaurantId"), 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{})
 		return

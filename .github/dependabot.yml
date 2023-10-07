@@ -4,13 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    
-    commit-message:
-      prefix: "chore"
 
-    # Group patch and minor updates into a single PR.
-    groups:
-      minor_and_patches:
-        update-types:
-        - "minor"
-        - "patch"
+  - package-ecosystem: "gomod"
+    directory: "/tools"
+    schedule:
+      interval: "daily"
