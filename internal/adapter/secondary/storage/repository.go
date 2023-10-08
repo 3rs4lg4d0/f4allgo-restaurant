@@ -31,7 +31,7 @@ func NewRestaurantPostgresRepository(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, 
 func (r *RestaurantPostgresRepository) FindAll(ctx context.Context, offset int, limit int) ([]*domain.Restaurant, int64, error) {
 	var restaurants []*Restaurant
 	var total int64
-	if err := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Preload("Menu").Offset(offset).Limit(limit).Find(&restaurants).Error; err != nil {
+	if err := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Preload("Menu").Order("id ASC").Offset(offset).Limit(limit).Find(&restaurants).Error; err != nil {
 		return nil, 0, err
 	}
 	if err := r.ctxGetter.DefaultTrOrDB(ctx, r.db).Model(&Restaurant{}).Count(&total).Error; err != nil {
