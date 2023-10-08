@@ -124,7 +124,7 @@ func TestFindAll(t *testing.T) {
 				limit:  100,
 			},
 			mockExpectations: func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery("SELECT .+ FROM \"restaurant\" LIMIT 100").WillReturnError(errors.New("error#1"))
+				mock.ExpectQuery(`SELECT .+ FROM "restaurant" .+`).WillReturnError(errors.New("error#1"))
 			},
 			wantErr:    true,
 			wantErrMsg: "error#1",
