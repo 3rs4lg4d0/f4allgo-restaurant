@@ -9,12 +9,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
-var logOnce sync.Once
+var loggerOnce sync.Once
 
 var log zerolog.Logger
 
 func GetLogger() zerolog.Logger {
-	logOnce.Do(func() {
+	loggerOnce.Do(func() {
 		logLevel := GetConfig().LogLevel
 		var output io.Writer
 		if GetConfig().LogBeautify {
