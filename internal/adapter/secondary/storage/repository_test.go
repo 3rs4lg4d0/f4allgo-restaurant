@@ -65,7 +65,10 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 
-	test.TerminateApplicationDatabase(ctx, database)
+	err = test.TerminateApplicationDatabase(ctx, database)
+	if err != nil {
+		fmt.Printf("an error ocurred terminating the database container: %w", err)
+	}
 	os.Exit(code)
 }
 

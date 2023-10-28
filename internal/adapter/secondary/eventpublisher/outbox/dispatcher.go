@@ -44,7 +44,7 @@ func NewOutboxDispatcher(repository OutboxRepository, logger zerolog.Logger, rep
 // InitOutboxDispatcher initializes a background process (inside a go routine) that
 // periodically polls the outbox table in order to send events to a message broker.
 func (d *OutboxDispatcher) InitOutboxDispatcher() {
-	d.logger.Debug().Msg("Initializing the outbox dispatcher")
+	d.logger.Debug().Msg("initializing the outbox dispatcher")
 	go d.execute()
 }
 
@@ -53,9 +53,12 @@ func (d *OutboxDispatcher) execute() {
 	for range ticker.C {
 		if acquired, err := d.acquireOutboxLock(); acquired {
 			d.processOutbox()
-			d.releaseOutboxLock()
+			err := d.releaseOutboxLock()
+			if err != nil {
+				d.logger.Err(err).Msg("releasing the outbox lock")
+			}
 		} else if err != nil {
-			d.logger.Debug().Msg("The lock is in use right now ¯\\_(ツ)_/¯")
+			d.logger.Debug().Msg("the lock is in use right now ¯\\_(ツ)_/¯")
 		}
 	}
 }
@@ -75,7 +78,7 @@ func (d *OutboxDispatcher) processOutbox() {
 	var deliveryChan = make(chan kafka.Event, batchSize)
 	var wg sync.WaitGroup
 
-	d.logger.Debug().Msg("Processing outbox messages")
+	d.logger.Debug().Msg("processing outbox messages")
 
 	go func() {
 		for e := range deliveryChan {
@@ -103,7 +106,7 @@ func (d *OutboxDispatcher) processOutbox() {
 				d.logger.Debug().Msgf("Ignored event: %s", ev)
 			}
 		}
-		d.logger.Debug().Msg("The goroutine for Kafka delivery reports has finished")
+		d.logger.Debug().Msg("the goroutine for Kafka delivery reports has finished")
 	}()
 
 	err := d.repository.findInBatches(batchSize, func(batch *[]*Outbox, tx *gorm.DB) error {

@@ -138,7 +138,7 @@ func (r *OutboxPostgresRepository) deleteInBatches(batchSize int, records []*Out
 }
 
 func (r *OutboxPostgresRepository) acquireLock() (bool, error) {
-	r.logger.Debug().Msg("Trying to get the lock on outbox table")
+	r.logger.Debug().Msg("trying to get the lock on outbox table")
 
 	var lock OutboxLock
 	if err := r.db.Where("id = ?", 1).First(&lock).Error; err != nil {
@@ -165,7 +165,7 @@ func (r *OutboxPostgresRepository) acquireLock() (bool, error) {
 }
 
 func (r *OutboxPostgresRepository) releaseLock() error {
-	r.logger.Debug().Msg("Trying to release the lock on outbox table")
+	r.logger.Debug().Msg("trying to release the lock on outbox table")
 
 	var lock OutboxLock
 	if err := r.db.Where("id = ?", 1).First(&lock).Error; err != nil {
@@ -174,7 +174,7 @@ func (r *OutboxPostgresRepository) releaseLock() error {
 	}
 
 	if !lock.Locked {
-		r.logger.Warn().Msg("The lock is already free")
+		r.logger.Warn().Msg("the lock is already free")
 		return nil
 	} else {
 		lock.Locked = false

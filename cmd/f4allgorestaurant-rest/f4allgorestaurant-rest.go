@@ -70,5 +70,8 @@ func startGinServer(restaurantHandler *rest.RestaurantHandler, metricsHandler ht
 	api.GET("/restaurants/:restaurantId", restaurantHandler.GetRestaurant)
 	api.PUT("/restaurants/:restaurantId/menu", restaurantHandler.UpdateMenu)
 
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		panic("failed to listen on port 8080")
+	}
 }

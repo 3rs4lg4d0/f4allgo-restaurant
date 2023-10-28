@@ -30,14 +30,15 @@ func GetHealthHandler(db *sql.DB) http.HandlerFunc {
 		if err != nil {
 			l.Err(err).Msg("unable to create a kafka check")
 		} else {
-			h.AddChecks([]*health.Config{
-				{
-					Name:     "check-kafka",
-					Checker:  kafkaCheck,
-					Interval: 5 * time.Second,
-					Fatal:    false,
-				},
+			err := h.AddCheck(&health.Config{
+				Name:     "check-kafka",
+				Checker:  kafkaCheck,
+				Interval: 5 * time.Second,
+				Fatal:    false,
 			})
+			if err != nil {
+				l.Err(err).Msg("kafka check was not added")
+			}
 		}
 
 		// Create a simple SQL check.
@@ -47,14 +48,15 @@ func GetHealthHandler(db *sql.DB) http.HandlerFunc {
 		if err != nil {
 			l.Err(err).Msg("unable to create a database check")
 		} else {
-			h.AddChecks([]*health.Config{
-				{
-					Name:     "check-db",
-					Checker:  sqlCheck,
-					Interval: 3 * time.Second,
-					Fatal:    true,
-				},
+			err := h.AddCheck(&health.Config{
+				Name:     "check-db",
+				Checker:  sqlCheck,
+				Interval: 3 * time.Second,
+				Fatal:    true,
 			})
+			if err != nil {
+				l.Err(err).Msg("sql check was not added")
+			}
 		}
 
 		if err := h.Start(); err != nil {

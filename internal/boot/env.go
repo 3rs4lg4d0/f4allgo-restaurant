@@ -51,7 +51,11 @@ func GetConfig() *Config {
 // loadEnvs uses 'godotenv' to preload the application configuration into env
 // variables. It only sets the ones already not set, so no overriding is done.
 func loadEnvs() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		l := GetLogger()
+		l.Trace().Msg("no .env file was found in disk")
+	}
 }
 
 // mapEnvsToConfig uses 'envconfig' to map env variables to a configuration struct for better
