@@ -49,17 +49,13 @@ func (d *OutboxDispatcher) InitOutboxDispatcher() {
 }
 
 func (d *OutboxDispatcher) execute() {
-	ticker := time.NewTicker(10 * time.Second)
-
-	for {
-		select {
-		case <-ticker.C:
-			if acquired, err := d.acquireOutboxLock(); acquired {
-				d.processOutbox()
-				d.releaseOutboxLock()
-			} else if err != nil {
-				d.logger.Debug().Msg("The lock is in use right now ¯\\_(ツ)_/¯")
-			}
+	ticker := time.NewTicker(3 * time.Second)
+	for range ticker.C {
+		if acquired, err := d.acquireOutboxLock(); acquired {
+			d.processOutbox()
+			d.releaseOutboxLock()
+		} else if err != nil {
+			d.logger.Debug().Msg("The lock is in use right now ¯\\_(ツ)_/¯")
 		}
 	}
 }
@@ -123,9 +119,12 @@ func (d *OutboxDispatcher) processOutbox() {
 
 			if err != nil {
 				d.logger.Err(err).Msg("when producing a message")
+				// if any error happen sending the message we don't need to retry here,
+				// the message will remain in the outbox table and will be sent in the
+				// next outbox processing.
+			} else {
+				wg.Add(1)
 			}
-
-			wg.Add(1)
 		}
 
 		return nil
@@ -138,6 +137,8 @@ func (d *OutboxDispatcher) processOutbox() {
 	// Wait until we get all the delivery reports from kafka client.
 	wg.Wait()
 
+	// We can safely close the channel because this is a dedicated channel only to
+	// receive as many delivery reports as many messages are sent.
 	close(deliveryChan)
 	d.logger.Info().Msgf("%d messages where successfully delivered (with %d failed) from a total of %d processed from outbox", len(success), totalErr, totalProcessed)
 
