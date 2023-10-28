@@ -29,6 +29,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build & Test
+    needs: lint
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
