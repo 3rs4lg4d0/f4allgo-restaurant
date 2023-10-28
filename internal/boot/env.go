@@ -7,7 +7,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-var configOnce sync.Once
+var envOnce sync.Once
 
 var config Config
 
@@ -37,7 +37,7 @@ type Config struct {
 // already present in the environment reading from .env, and loading them into
 // the Config struct for better accessibility from the adapter layers).
 func LoadConfig() {
-	configOnce.Do(func() {
+	envOnce.Do(func() {
 		loadEnvs()
 		mapEnvsToConfig()
 	})
