@@ -44,22 +44,21 @@ func NewOutboxDispatcher(repository OutboxRepository, logger zerolog.Logger, rep
 // InitOutboxDispatcher initializes a background process (inside a go routine) that
 // periodically polls the outbox table in order to send events to a message broker.
 func (d *OutboxDispatcher) InitOutboxDispatcher() {
-	d.logger.Debug().Msg("Initializing the outbox dispatcher")
+	d.logger.Debug().Msg("initializing the outbox dispatcher")
 	go d.execute()
 }
 
 func (d *OutboxDispatcher) execute() {
-	ticker := time.NewTicker(10 * time.Second)
-
-	for {
-		select {
-		case <-ticker.C:
-			if acquired, err := d.acquireOutboxLock(); acquired {
-				d.processOutbox()
-				d.releaseOutboxLock()
-			} else if err != nil {
-				d.logger.Debug().Msg("The lock is in use right now ¯\\_(ツ)_/¯")
+	ticker := time.NewTicker(3 * time.Second)
+	for range ticker.C {
+		if acquired, err := d.acquireOutboxLock(); acquired {
+			d.processOutbox()
+			err := d.releaseOutboxLock()
+			if err != nil {
+				d.logger.Err(err).Msg("releasing the outbox lock")
 			}
+		} else if err != nil {
+			d.logger.Debug().Msg("the lock is in use right now ¯\\_(ツ)_/¯")
 		}
 	}
 }
@@ -79,7 +78,7 @@ func (d *OutboxDispatcher) processOutbox() {
 	var deliveryChan = make(chan kafka.Event, batchSize)
 	var wg sync.WaitGroup
 
-	d.logger.Debug().Msg("Processing outbox messages")
+	d.logger.Debug().Msg("processing outbox messages")
 
 	go func() {
 		for e := range deliveryChan {
@@ -107,7 +106,7 @@ func (d *OutboxDispatcher) processOutbox() {
 				d.logger.Debug().Msgf("Ignored event: %s", ev)
 			}
 		}
-		d.logger.Debug().Msg("The goroutine for Kafka delivery reports has finished")
+		d.logger.Debug().Msg("the goroutine for Kafka delivery reports has finished")
 	}()
 
 	err := d.repository.findInBatches(batchSize, func(batch *[]*Outbox, tx *gorm.DB) error {
@@ -123,9 +122,12 @@ func (d *OutboxDispatcher) processOutbox() {
 
 			if err != nil {
 				d.logger.Err(err).Msg("when producing a message")
+				// if any error happen sending the message we don't need to retry here,
+				// the message will remain in the outbox table and will be sent in the
+				// next outbox processing.
+			} else {
+				wg.Add(1)
 			}
-
-			wg.Add(1)
 		}
 
 		return nil
@@ -138,6 +140,8 @@ func (d *OutboxDispatcher) processOutbox() {
 	// Wait until we get all the delivery reports from kafka client.
 	wg.Wait()
 
+	// We can safely close the channel because this is a dedicated channel only to
+	// receive as many delivery reports as many messages are sent.
 	close(deliveryChan)
 	d.logger.Info().Msgf("%d messages where successfully delivered (with %d failed) from a total of %d processed from outbox", len(success), totalErr, totalProcessed)
 

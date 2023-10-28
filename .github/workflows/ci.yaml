@@ -1,4 +1,4 @@
-name: CI pipeline
+name: CI & Release pipeline
 
 on:
   workflow_dispatch:
@@ -8,17 +8,36 @@ on:
     paths-ignore:
       - assets/**"
       - "**.md"
+  push:
+    branches:
+      - 'main'
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Go lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            tools/go.sum
+      - name: Generate sources
+        run: go generate -v ./...
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3
 
   build:
     runs-on: ubuntu-latest
     name: Build & Test
-
+    needs: lint
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
     - name: Setup Go
       uses: actions/setup-go@v4
       with:
@@ -26,29 +45,66 @@ jobs:
         cache-dependency-path: |
           go.sum
           tools/go.sum
-
     - name: Generate sources
       run: go generate -v ./...
-    
     - name: Build all
       run: go build -v ./...
-
     - name: Test
-      run: go test -v -cover ./...
+      run: go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - name: Refresh go report card
+      run: curl -X POST -F "repo=github.com/$GITHUB_REPOSITORY" https://goreportcard.com/checks
 
   dependabot:
     runs-on: ubuntu-latest
     name: Dependabot auto merge
     needs: build
     if: ${{ github.actor == 'dependabot[bot]' }}
-
     permissions:
       contents: write
       pull-requests: write
-
     steps:
-    - name: Enable auto-merge for Dependabot PRs
-      run: gh pr merge --auto --squash "$PR_URL"
-      env:
-        PR_URL: ${{github.event.pull_request.html_url}}
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Approve Dependabot PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Merge Dependabot PR
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  release:
+    runs-on: ubuntu-latest
+    name: Semantic release
+    needs: build
+    if: ${{ github.event_name == 'push' }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+      - name: Generate goreleaser config
+        run: |
+          echo "builds:" > .goreleaser.yaml
+          echo "  - skip: true" >> .goreleaser.yaml
+      - name: Create release
+        uses: go-semantic-release/action@v1
+        with:
+          hooks: goreleaser
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

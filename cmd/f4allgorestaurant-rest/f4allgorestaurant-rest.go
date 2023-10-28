@@ -27,6 +27,10 @@ func main() {
 	// Inits tally scope and gets the reporter.
 	r := boot.GetTallyReporter()
 
+	// Inits health checks and gets the handler.
+	sqlDb, _ := db.DB()
+	h := boot.GetHealthHandler(sqlDb)
+
 	// Secondary adapter for RestaurantRepository port.
 	timer := boot.GetTallyScope().Tagged(map[string]string{"repository": "restaurant"}).Timer("database_durations")
 	restaurantRepository := storage.NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, timer)
@@ -48,15 +52,16 @@ func main() {
 	// Primary adapters
 	restaurantHandler := rest.NewRestaurantHandler(restaurantService)
 
-	startGinServer(restaurantHandler, r.HTTPHandler())
+	startGinServer(restaurantHandler, r.HTTPHandler(), h)
 }
 
-func startGinServer(restaurantHandler *rest.RestaurantHandler, metricsHandler http.Handler) {
+func startGinServer(restaurantHandler *rest.RestaurantHandler, metricsHandler http.Handler, healthHandler http.Handler) {
 	gin.SetMode(boot.GetConfig().GinMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
 
 	router.GET("/metrics", gin.WrapH(metricsHandler))
+	router.GET("/health", gin.WrapH(healthHandler))
 
 	api := router.Group("/api/v1")
 	api.GET("/restaurants", restaurantHandler.GetRestaurants)
@@ -65,5 +70,8 @@ func startGinServer(restaurantHandler *rest.RestaurantHandler, metricsHandler ht
 	api.GET("/restaurants/:restaurantId", restaurantHandler.GetRestaurant)
 	api.PUT("/restaurants/:restaurantId/menu", restaurantHandler.UpdateMenu)
 
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		panic("failed to listen on port 8080")
+	}
 }

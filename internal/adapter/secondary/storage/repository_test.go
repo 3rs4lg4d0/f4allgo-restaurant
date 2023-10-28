@@ -65,7 +65,10 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 
-	test.TerminateApplicationDatabase(ctx, database)
+	err = test.TerminateApplicationDatabase(ctx, database)
+	if err != nil {
+		fmt.Printf("an error ocurred terminating the database container: %v", err)
+	}
 	os.Exit(code)
 }
 
@@ -276,7 +279,7 @@ func TestSave(t *testing.T) {
 				repository, trm, mock = createMockRepository()
 				tc.mockExpectations(mock)
 			}
-			trm.Do(ctx, func(ctx context.Context) error {
+			err := trm.Do(ctx, func(ctx context.Context) error {
 				assert.Equal(t, int64(0), tc.args.restaurant.Id)
 				err := repository.Save(ctx, tc.args.restaurant)
 				if !tc.wantErr {
@@ -295,6 +298,8 @@ func TestSave(t *testing.T) {
 				// the other tests.
 				return errors.New(ROLLBACK_PLEASE)
 			})
+
+			assert.Error(t, err)
 		})
 	}
 }
@@ -375,7 +380,7 @@ func TestUpdate(t *testing.T) {
 				repository, trm, mock = createMockRepository()
 				tc.mockExpectations(mock)
 			}
-			trm.Do(ctx, func(ctx context.Context) error {
+			err := trm.Do(ctx, func(ctx context.Context) error {
 				ra, err := repository.Update(ctx, tc.args.restaurant)
 				if !tc.wantErr {
 					assert.NoError(t, err)
@@ -394,6 +399,8 @@ func TestUpdate(t *testing.T) {
 
 				return errors.New(ROLLBACK_PLEASE)
 			})
+
+			assert.Error(t, err)
 		})
 	}
 }
@@ -426,12 +433,14 @@ func TestDelete(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
-			trManager.Do(ctx, func(ctx context.Context) error {
+			err := trManager.Do(ctx, func(ctx context.Context) error {
 				ra, _ := restaurantRepository.Delete(ctx, tc.args.restaurantId)
 				assert.Equal(t, tc.wantRowsAffected, ra)
 
 				return errors.New(ROLLBACK_PLEASE)
 			})
+
+			assert.Error(t, err)
 		})
 	}
 }

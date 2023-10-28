@@ -7,7 +7,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-var configOnce sync.Once
+var envOnce sync.Once
 
 var config Config
 
@@ -37,7 +37,7 @@ type Config struct {
 // already present in the environment reading from .env, and loading them into
 // the Config struct for better accessibility from the adapter layers).
 func LoadConfig() {
-	configOnce.Do(func() {
+	envOnce.Do(func() {
 		loadEnvs()
 		mapEnvsToConfig()
 	})
@@ -51,7 +51,11 @@ func GetConfig() *Config {
 // loadEnvs uses 'godotenv' to preload the application configuration into env
 // variables. It only sets the ones already not set, so no overriding is done.
 func loadEnvs() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		l := GetLogger()
+		l.Trace().Msg("no .env file was found in disk")
+	}
 }
 
 // mapEnvsToConfig uses 'envconfig' to map env variables to a configuration struct for better
