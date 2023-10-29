@@ -21,19 +21,19 @@ func main() {
 	boot.PrintBanner()
 
 	// Get the database connection and transaction manager.
-	db := boot.GetDatabaseConnection()
-	trManager := boot.GetTransactionManager(db)
+	gormDb := boot.GetDatabaseConnection()
+	trManager := boot.GetTransactionManager(gormDb)
+	sqlDb, _ := gormDb.DB()
 
 	// Inits tally scope and gets the reporter.
-	r := boot.GetTallyReporter()
+	r := boot.GetTallyReporter(sqlDb)
 
 	// Inits health checks and gets the handler.
-	sqlDb, _ := db.DB()
 	h := boot.GetHealthHandler(sqlDb)
 
 	// Secondary adapter for RestaurantRepository port.
 	timer := boot.GetTallyScope().Tagged(map[string]string{"repository": "restaurant"}).Timer("database_durations")
-	restaurantRepository := storage.NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, timer)
+	restaurantRepository := storage.NewRestaurantPostgresRepository(gormDb, trmgorm.DefaultCtxGetter, timer)
 
 	// Secondary adapter for DomainEventPublisher port.
 	restaurantCreated := boot.GetTallyScope().Tagged(map[string]string{"event_type": "RestaurantCreated"}).Counter("outgoing_events")
@@ -44,7 +44,7 @@ func main() {
 		"RestaurantDeleted":     restaurantDeleted,
 		"RestaurantMenuUpdated": restaurantMenuUpdated,
 	}
-	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(db, trmgorm.DefaultCtxGetter, boot.GetLogger(), eventCounters)
+	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDb, trmgorm.DefaultCtxGetter, boot.GetLogger(), eventCounters)
 
 	// Core service
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)
