@@ -61,7 +61,7 @@ func TestMain(m *testing.M) {
 	}
 
 	trManager = boot.GetTransactionManager(db)
-	restaurantRepository = NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, test.NewNopTallyTimer())
+	restaurantRepository = NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, nil)
 
 	code := m.Run()
 

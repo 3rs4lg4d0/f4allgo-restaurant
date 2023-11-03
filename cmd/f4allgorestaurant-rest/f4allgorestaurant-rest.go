@@ -10,7 +10,6 @@ import (
 
 	trmgorm "github.com/avito-tech/go-transaction-manager/gorm"
 	"github.com/gin-gonic/gin"
-	tally "github.com/uber-go/tally/v4"
 )
 
 func main() {
@@ -32,19 +31,10 @@ func main() {
 	h := boot.GetHealthHandler(sqlDb)
 
 	// Secondary adapter for RestaurantRepository port.
-	timer := boot.GetTallyScope().Tagged(map[string]string{"repository": "restaurant"}).Timer("database_durations")
-	restaurantRepository := storage.NewRestaurantPostgresRepository(gormDb, trmgorm.DefaultCtxGetter, timer)
+	restaurantRepository := storage.NewRestaurantPostgresRepository(gormDb, trmgorm.DefaultCtxGetter, boot.GetTallyScope())
 
 	// Secondary adapter for DomainEventPublisher port.
-	restaurantCreated := boot.GetTallyScope().Tagged(map[string]string{"event_type": "RestaurantCreated"}).Counter("outgoing_events")
-	restaurantDeleted := boot.GetTallyScope().Tagged(map[string]string{"event_type": "RestaurantDeleted"}).Counter("outgoing_events")
-	restaurantMenuUpdated := boot.GetTallyScope().Tagged(map[string]string{"event_type": "RestaurantMenuUpdated"}).Counter("outgoing_events")
-	eventCounters := map[string]tally.Counter{
-		"RestaurantCreated":     restaurantCreated,
-		"RestaurantDeleted":     restaurantDeleted,
-		"RestaurantMenuUpdated": restaurantMenuUpdated,
-	}
-	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDb, trmgorm.DefaultCtxGetter, boot.GetLogger(), eventCounters)
+	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDb, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetTallyScope())
 
 	// Core service
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)

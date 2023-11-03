@@ -23,7 +23,11 @@ type RestaurantPostgresRepository struct {
 // Interface compliance verification.
 var _ port.RestaurantRepository = (*RestaurantPostgresRepository)(nil)
 
-func NewRestaurantPostgresRepository(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, timer tally.Timer) *RestaurantPostgresRepository {
+func NewRestaurantPostgresRepository(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, scope tally.Scope) *RestaurantPostgresRepository {
+	var timer tally.Timer
+	if scope != nil {
+		timer = scope.Tagged(map[string]string{"repository": "restaurant"}).Timer("database_durations")
+	}
 	return &RestaurantPostgresRepository{mapper: DefaultMapper{}, db: db, ctxGetter: ctxGetter, timer: timer}
 }
 

@@ -21,19 +21,25 @@ type DomainEventOutboxPublisher struct {
 // Interface compliance verification.
 var _ port.DomainEventPublisher = (*DomainEventOutboxPublisher)(nil)
 
-func NewDomainEventOutboxPublisher(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, logger zerolog.Logger, eventCounters map[string]tally.Counter) *DomainEventOutboxPublisher {
+func NewDomainEventOutboxPublisher(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, logger zerolog.Logger, scope tally.Scope) *DomainEventOutboxPublisher {
 	outboxRepository := outbox.NewOutboxPostgresRepository(db, ctxGetter, logger)
 	if boot.GetConfig().AppInitOutboxDispatcher {
-		successes := boot.GetTallyScope().Tagged(map[string]string{"outcome": "success"}).Counter("outbox")
-		errors := boot.GetTallyScope().Tagged(map[string]string{"outcome": "error"}).Counter("outbox")
-
 		// Initializes the outbox dispatcher and forget about it (because it
 		// runs in its own goroutine)
-		dispatcher := outbox.NewOutboxDispatcher(outboxRepository, logger, map[string]tally.Counter{
-			"success": successes,
-			"error":   errors,
-		})
+		dispatcher := outbox.NewOutboxDispatcher(outboxRepository, logger, boot.GetTallyScope())
 		dispatcher.InitOutboxDispatcher()
+	}
+
+	var eventCounters map[string]tally.Counter
+	if scope != nil {
+		restaurantCreated := scope.Tagged(map[string]string{"event_type": "RestaurantCreated"}).Counter("outgoing_events")
+		restaurantDeleted := scope.Tagged(map[string]string{"event_type": "RestaurantDeleted"}).Counter("outgoing_events")
+		restaurantMenuUpdated := scope.Tagged(map[string]string{"event_type": "RestaurantMenuUpdated"}).Counter("outgoing_events")
+		eventCounters = map[string]tally.Counter{
+			"RestaurantCreated":     restaurantCreated,
+			"RestaurantDeleted":     restaurantDeleted,
+			"RestaurantMenuUpdated": restaurantMenuUpdated,
+		}
 	}
 
 	return &DomainEventOutboxPublisher{
