@@ -33,13 +33,13 @@ func GetTallyReporter(db *sql.DB) promreporter.Reporter {
 			CachedReporter: reporter,
 			Separator:      promreporter.DefaultSeparator,
 		}, time.Second)
-	})
 
-	// If sql.DB is provided register all the metrics collected in sql.DBStats
-	// in its own Tally scope and report them periodically.
-	if db != nil {
-		registerDBStatsAndReport(db, reporter)
-	}
+		// If sql.DB is provided register all the metrics collected in sql.DBStats
+		// in its own Tally scope and report them periodically.
+		if db != nil {
+			registerDBStatsAndReport(db, reporter)
+		}
+	})
 
 	return reporter
 }
@@ -50,20 +50,22 @@ func GetTallyScope() tally.Scope {
 	return scope
 }
 
+// registerDBStatsAndReport registers sql.DBStats as Tally Gauges and starts an endless
+// goroutine to keep them updated.
 func registerDBStatsAndReport(db *sql.DB, reporter promreporter.Reporter) {
 	s, _ := tally.NewRootScope(tally.ScopeOptions{
 		CachedReporter: reporter,
 	}, time.Second)
 
-	reporter.RegisterGauge("sql_dbstats_max_open_connections", nil, "Maximum number of open connections to the database.")
-	reporter.RegisterGauge("sql_dbstats_open_connections", nil, "The number of established connections both in use and idle.")
-	reporter.RegisterGauge("sql_dbstats_in_use", nil, "The number of connections currently in use.")
-	reporter.RegisterGauge("sql_dbstats_idle", nil, "The number of idle connections.")
-	reporter.RegisterGauge("sql_dbstats_wait_count", nil, "The total number of connections waited for.")
-	reporter.RegisterGauge("sql_dbstats_wait_duration", nil, "The total time blocked waiting for a new connection.")
-	reporter.RegisterGauge("sql_dbstats_max_idle_closed", nil, "The total number of connections closed due to SetMaxIdleConns.")
-	reporter.RegisterGauge("sql_dbstats_max_lifetime_closed", nil, "The total number of connections closed due to SetConnMaxLifetime.")
-	reporter.RegisterGauge("sql_dbstats_max_idletime_closed", nil, "The total number of connections closed due to SetConnMaxIdleTime.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_max_open_connections", nil, "Maximum number of open connections to the database.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_open_connections", nil, "The number of established connections both in use and idle.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_in_use", nil, "The number of connections currently in use.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_idle", nil, "The number of idle connections.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_wait_count", nil, "The total number of connections waited for.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_wait_duration", nil, "The total time blocked waiting for a new connection.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_max_idle_closed", nil, "The total number of connections closed due to SetMaxIdleConns.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_max_lifetime_closed", nil, "The total number of connections closed due to SetConnMaxLifetime.")
+	_, _ = reporter.RegisterGauge("sql_dbstats_max_idletime_closed", nil, "The total number of connections closed due to SetConnMaxIdleTime.")
 
 	go func() {
 		for range time.Tick(3 * time.Second) {
