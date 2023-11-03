@@ -27,7 +27,7 @@ clean:
 	@rm -f cmd/f4allgorestaurant-rest/f4allgorestaurant-rest
 	@rm -f cmd/f4allgorestaurant-cli/f4allgorestaurant-cli
 	@rm -f coverage.out
-	@go clean
+	@go clean -cache
 
 .PHONY: test
 test:
