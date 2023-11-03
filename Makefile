@@ -11,10 +11,10 @@ DB_PASSWORD=f4all_restaurant_pass
 # Basic actions.
 # -----------------------------------------------------------------------------
 .PNOHY: all
-all: generate-sources build
+all: generate build
 
-.PHONY: generate-sources
-generate-sources:
+.PHONY: generate
+generate:
 	@go generate ./...
 
 .PHONY: build
@@ -22,11 +22,18 @@ build:
 	@go build -o cmd/f4allgorestaurant-rest cmd/f4allgorestaurant-rest/f4allgorestaurant-rest.go
 	@go build -o cmd/f4allgorestaurant-cli cmd/f4allgorestaurant-cli/f4allgorestaurant-cli.go
 
-.PHONY: clean
-clean:
+.PHONY: clean-files
+clean-files:
 	@rm -f cmd/f4allgorestaurant-rest/f4allgorestaurant-rest
 	@rm -f cmd/f4allgorestaurant-cli/f4allgorestaurant-cli
 	@rm -f coverage.out
+
+.PHONY: clean
+clean: clean-files
+	@go clean
+
+.PHONY: full-clean
+full-clean: clean-files
 	@go clean -cache
 
 .PHONY: test
@@ -35,13 +42,13 @@ test:
 
 .PHONY: test-coverage
 test-coverage:
-	@go test ./... -coverprofile=coverage.out
-	@go tool cover -html=coverage.out
+	@go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
 
 .PHONY: run-service
 run-service:
 	@cd cmd/f4allgorestaurant-rest && go run f4allgorestaurant-rest.go
 
+.PHONY: run-service-debug
 run-service-debug:
 	@export F4ALLGO_LOG_LEVEL=0 && export F4ALLGO_LOG_BEAUTIFY=true && \
 		cd cmd/f4allgorestaurant-rest && go run f4allgorestaurant-rest.go
