@@ -17,11 +17,11 @@ var (
 	scope    tally.Scope
 )
 
-// GetTallyReporter initializes (only once) the metrics reporter and a root scope
+// InitTallyReporter initializes (only once) the metrics reporter and a root scope
 // and returns the reporter. It also registers general purpose metrics in the scope
 // like DBStats (if sql.DB is provided) and other useful stats related with the
 // infrastructure (e.g. CPU).
-func GetTallyReporter(db *sql.DB) promreporter.Reporter {
+func InitTallyReporter(db *sql.DB) promreporter.Reporter {
 	metricsOnce.Do(func() {
 		reporter = promreporter.NewReporter(promreporter.Options{})
 

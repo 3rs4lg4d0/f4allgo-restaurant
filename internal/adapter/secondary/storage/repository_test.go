@@ -17,6 +17,7 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm"
 	"github.com/stretchr/testify/assert"
 	pgcontainer "github.com/testcontainers/testcontainers-go/modules/postgres"
+	"github.com/uber-go/tally/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -61,7 +62,10 @@ func TestMain(m *testing.M) {
 	}
 
 	trManager = boot.GetTransactionManager(db)
-	restaurantRepository = NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, nil)
+
+	sqlDb, _ := db.DB()
+	boot.InitTallyReporter(sqlDb)
+	restaurantRepository = NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, boot.GetTallyScope())
 
 	code := m.Run()
 
@@ -70,6 +74,56 @@ func TestMain(m *testing.M) {
 		fmt.Printf("an error ocurred terminating the database container: %v", err)
 	}
 	os.Exit(code)
+}
+
+func TestNewRestaurantPostgresRepository(t *testing.T) {
+	type args struct {
+		db        *gorm.DB
+		ctxGetter *trmgorm.CtxGetter
+		scope     tally.Scope
+	}
+	testcases := []struct {
+		name      string
+		args      args
+		wantTimer bool
+	}{
+		{
+			name: "timer should be nil",
+			args: args{
+				db:        db,
+				ctxGetter: trmgorm.DefaultCtxGetter,
+				scope:     nil,
+			},
+			wantTimer: false,
+		},
+		{
+			name: "timer should not be nil",
+			args: args{
+				db:        db,
+				ctxGetter: trmgorm.DefaultCtxGetter,
+				scope: func() tally.Scope {
+					sqlDb, _ := db.DB()
+					boot.InitTallyReporter(sqlDb)
+					return boot.GetTallyScope()
+				}(),
+			},
+			wantTimer: true,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			rr := NewRestaurantPostgresRepository(tc.args.db, tc.args.ctxGetter, tc.args.scope)
+			assert.Equal(t, DefaultMapper{}, rr.mapper)
+			assert.Equal(t, tc.args.db, rr.db)
+			assert.Equal(t, tc.args.ctxGetter, rr.ctxGetter)
+			if tc.wantTimer {
+				assert.NotNil(t, rr.timer)
+			} else {
+				assert.Nil(t, rr.timer)
+			}
+		})
+	}
 }
 
 func TestFindAll(t *testing.T) {

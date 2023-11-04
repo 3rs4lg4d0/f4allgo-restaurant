@@ -25,7 +25,7 @@ func main() {
 	sqlDb, _ := gormDb.DB()
 
 	// Inits tally scope and gets the reporter.
-	r := boot.GetTallyReporter(sqlDb)
+	r := boot.InitTallyReporter(sqlDb)
 
 	// Inits health checks and gets the handler.
 	h := boot.GetHealthHandler(sqlDb)
