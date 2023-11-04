@@ -54,8 +54,8 @@ type OutboxPostgresRepository struct {
 // Interface compliance verification.
 var _ OutboxRepository = (*OutboxPostgresRepository)(nil)
 
-func NewOutboxPostgresRepository(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, logger zerolog.Logger) *OutboxPostgresRepository {
-	return &OutboxPostgresRepository{mapper: DefaultMapper{}, db: db, ctxGetter: ctxGetter, logger: logger}
+func NewOutboxPostgresRepository(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, config *boot.Config, logger zerolog.Logger) *OutboxPostgresRepository {
+	return &OutboxPostgresRepository{mapper: DefaultMapper{}, db: db, ctxGetter: ctxGetter, config: config, logger: logger}
 }
 
 func (r *OutboxPostgresRepository) Save(ctx context.Context, event domain.DomainEvent) error {

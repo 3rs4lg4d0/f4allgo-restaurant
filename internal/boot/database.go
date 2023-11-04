@@ -20,8 +20,14 @@ func GetDatabaseConnection() *gorm.DB {
 		GetConfig().DbName,
 		GetConfig().DbPort)
 
+	var ll logger.LogLevel
+	if GetConfig().LogLevel < 3 {
+		ll = logger.Warn
+	} else {
+		ll = logger.Silent
+	}
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Warn),
+		Logger: logger.Default.LogMode(ll),
 	})
 	if err != nil {
 		panic("failed to connect to database")
