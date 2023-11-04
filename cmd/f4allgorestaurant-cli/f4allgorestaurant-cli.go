@@ -22,7 +22,7 @@ func main() {
 
 	// Secondary adapters
 	restaurantRepository := storage.NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, nil)
-	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(db, trmgorm.DefaultCtxGetter, boot.GetLogger(), nil)
+	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(db, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetConfig(), nil)
 
 	// Core service
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)

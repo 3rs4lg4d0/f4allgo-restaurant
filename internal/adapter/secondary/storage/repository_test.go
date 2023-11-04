@@ -118,9 +118,9 @@ func TestNewRestaurantPostgresRepository(t *testing.T) {
 			assert.Equal(t, tc.args.db, rr.db)
 			assert.Equal(t, tc.args.ctxGetter, rr.ctxGetter)
 			if tc.wantTimer {
-				assert.NotNil(t, rr.timer)
+				assert.NotNil(t, rr.timers)
 			} else {
-				assert.Nil(t, rr.timer)
+				assert.Nil(t, rr.timers)
 			}
 		})
 	}
@@ -466,7 +466,10 @@ func TestDelete(t *testing.T) {
 	testcases := []struct {
 		name             string
 		args             args
+		mockExpectations func(sqlmock.Sqlmock)
 		wantRowsAffected int64
+		wantErr          bool
+		wantErrMsg       string
 	}{
 		{
 			name: "delete restaurant",
@@ -474,6 +477,7 @@ func TestDelete(t *testing.T) {
 				restaurantId: 1000,
 			},
 			wantRowsAffected: 1,
+			wantErr:          false,
 		},
 		{
 			name: "delete a restaurant that doesn't exist",
@@ -481,15 +485,49 @@ func TestDelete(t *testing.T) {
 				restaurantId: 1001,
 			},
 			wantRowsAffected: 0,
+			wantErr:          false,
+		},
+		{
+			name: "simulate error when deleting a restaurant",
+			args: args{
+				restaurantId: 1001,
+			},
+			mockExpectations: func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec("DELETE FROM .+").WillReturnError(errors.New("error#5"))
+				mock.ExpectRollback()
+			},
+			wantRowsAffected: 0,
+			wantErr:          true,
+			wantErrMsg:       "error#5",
 		},
 	}
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx := context.Background()
-			err := trManager.Do(ctx, func(ctx context.Context) error {
-				ra, _ := restaurantRepository.Delete(ctx, tc.args.restaurantId)
-				assert.Equal(t, tc.wantRowsAffected, ra)
+			var repository = restaurantRepository
+			var trm = trManager
+			if tc.mockExpectations != nil {
+				var mock sqlmock.Sqlmock
+				repository, trm, mock = createMockRepository()
+				tc.mockExpectations(mock)
+			}
+			err := trm.Do(ctx, func(ctx context.Context) error {
+				ra, err := repository.Delete(ctx, tc.args.restaurantId)
+				if !tc.wantErr {
+					assert.NoError(t, err)
+					assert.Equal(t, tc.wantRowsAffected, ra)
+					if ra > 0 {
+						actualRestaurant, _ := repository.FindById(ctx, tc.args.restaurantId, false)
+						assert.Nil(t, actualRestaurant)
+					}
+				} else {
+					assert.Error(t, err)
+					if len(tc.wantErrMsg) > 0 {
+						assert.Equal(t, tc.wantErrMsg, err.Error())
+					}
+				}
 
 				return errors.New(ROLLBACK_PLEASE)
 			})

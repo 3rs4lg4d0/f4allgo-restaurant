@@ -34,7 +34,7 @@ func main() {
 	restaurantRepository := storage.NewRestaurantPostgresRepository(gormDb, trmgorm.DefaultCtxGetter, boot.GetTallyScope())
 
 	// Secondary adapter for DomainEventPublisher port.
-	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDb, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetTallyScope())
+	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDb, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetConfig(), boot.GetTallyScope())
 
 	// Core service
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)

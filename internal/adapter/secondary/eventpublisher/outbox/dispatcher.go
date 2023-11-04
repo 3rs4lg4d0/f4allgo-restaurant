@@ -28,9 +28,9 @@ type OutboxDispatcher struct {
 	reportCounters map[string]tally.Counter
 }
 
-func NewOutboxDispatcher(repository OutboxRepository, logger zerolog.Logger, scope tally.Scope) *OutboxDispatcher {
+func NewOutboxDispatcher(repository OutboxRepository, logger zerolog.Logger, config *boot.Config, scope tally.Scope) *OutboxDispatcher {
 	producer, _ := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers":  boot.GetConfig().KafkaBootstrapServers,
+		"bootstrap.servers":  config.KafkaBootstrapServers,
 		"linger.ms":          500,
 		"batch.size":         100 * 1024,
 		"compression.type":   "lz4",
@@ -40,8 +40,8 @@ func NewOutboxDispatcher(repository OutboxRepository, logger zerolog.Logger, sco
 
 	var reportCounters map[string]tally.Counter
 	if scope != nil {
-		successes := boot.GetTallyScope().Tagged(map[string]string{"outcome": "success"}).Counter("outbox")
-		errors := boot.GetTallyScope().Tagged(map[string]string{"outcome": "error"}).Counter("outbox")
+		successes := scope.Tagged(map[string]string{"outcome": "success"}).Counter("outbox")
+		errors := scope.Tagged(map[string]string{"outcome": "error"}).Counter("outbox")
 		reportCounters = map[string]tally.Counter{
 			"success": successes,
 			"error":   errors,

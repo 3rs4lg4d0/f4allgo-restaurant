@@ -68,7 +68,7 @@ func registerDBStatsAndReport(db *sql.DB, reporter promreporter.Reporter) {
 	_, _ = reporter.RegisterGauge("sql_dbstats_max_idletime_closed", nil, "The total number of connections closed due to SetConnMaxIdleTime.")
 
 	go func() {
-		for range time.Tick(3 * time.Second) {
+		for range time.Tick(2 * time.Second) {
 			s.Gauge("sql_dbstats_max_open_connections").Update(float64(db.Stats().MaxOpenConnections))
 			s.Gauge("sql_dbstats_open_connections").Update(float64(db.Stats().OpenConnections))
 			s.Gauge("sql_dbstats_in_use").Update(float64(db.Stats().InUse))

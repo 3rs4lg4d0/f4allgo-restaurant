@@ -21,12 +21,12 @@ type DomainEventOutboxPublisher struct {
 // Interface compliance verification.
 var _ port.DomainEventPublisher = (*DomainEventOutboxPublisher)(nil)
 
-func NewDomainEventOutboxPublisher(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, logger zerolog.Logger, scope tally.Scope) *DomainEventOutboxPublisher {
+func NewDomainEventOutboxPublisher(db *gorm.DB, ctxGetter *trmgorm.CtxGetter, logger zerolog.Logger, config *boot.Config, scope tally.Scope) *DomainEventOutboxPublisher {
 	outboxRepository := outbox.NewOutboxPostgresRepository(db, ctxGetter, logger)
-	if boot.GetConfig().AppInitOutboxDispatcher {
+	if config.AppInitOutboxDispatcher {
 		// Initializes the outbox dispatcher and forget about it (because it
 		// runs in its own goroutine)
-		dispatcher := outbox.NewOutboxDispatcher(outboxRepository, logger, boot.GetTallyScope())
+		dispatcher := outbox.NewOutboxDispatcher(outboxRepository, logger, config, scope)
 		dispatcher.InitOutboxDispatcher()
 	}
 
