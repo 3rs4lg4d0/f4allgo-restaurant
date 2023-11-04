@@ -2,7 +2,7 @@
   "__inputs": [
     {
       "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
+      "label": "Prometheus for f4allgo-restaurant",
       "description": "",
       "type": "datasource",
       "pluginId": "prometheus",
@@ -15,6 +15,12 @@
       "type": "panel",
       "id": "bargauge",
       "name": "Bar gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
       "version": ""
     },
     {
@@ -164,37 +170,11 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(f4allgo_restaurant_outgoing_events{event_type=\"RestaurantCreated\"}[2m])",
+          "expr": "rate(f4allgo_restaurant_outgoing_events[2m])",
           "instant": false,
           "legendFormat": "{{event_type}}",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "rate(f4allgo_restaurant_outgoing_events{event_type=\"RestaurantDeleted\"}[2m])",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "{{event_type}}",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "rate(f4allgo_restaurant_outgoing_events{event_type=\"RestaurantMenuUpdated\"}[2m])",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "{{event_type}}",
-          "range": true,
-          "refId": "C"
         }
       ],
       "title": "Outbox stored / s",
@@ -350,7 +330,17 @@
           "color": {
             "mode": "continuous-GrYlRd"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "NaN": {
+                  "index": 0,
+                  "text": "0 ms"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -377,7 +367,7 @@
       "id": 31,
       "options": {
         "displayMode": "lcd",
-        "minVizHeight": 10,
+        "minVizHeight": 12,
         "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
@@ -388,6 +378,7 @@
           "values": false
         },
         "showUnfilled": true,
+        "text": {},
         "valueMode": "color"
       },
       "pluginVersion": "10.1.0",
@@ -398,15 +389,106 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "f4allgo_restaurant_database_durations",
+          "expr": "f4allgo_restaurant_repository_latencies",
           "instant": false,
-          "legendFormat": "{{quantile}}",
+          "legendFormat": "{{operation}} - {{quantile}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Restaurant creation duration",
+      "title": "Restaurant repository latencies",
       "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 32,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "10.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sql_dbstats_open_connections",
+          "instant": false,
+          "legendFormat": "Stablished",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sql_dbstats_idle",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Idle",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sql_dbstats_in_use",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "In use",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Connection pool",
+      "type": "gauge"
     },
     {
       "collapsed": false,
@@ -1453,7 +1535,9 @@
     "go",
     "golang"
   ],
-  "templating": {},
+  "templating": {
+    "list": []
+  },
   "time": {
     "from": "now-5m",
     "to": "now"

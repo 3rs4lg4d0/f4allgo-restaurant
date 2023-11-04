@@ -47,6 +47,7 @@ type OutboxPostgresRepository struct {
 	mapper    Mapper
 	db        *gorm.DB
 	ctxGetter *trmgorm.CtxGetter
+	config    *boot.Config
 	logger    zerolog.Logger
 }
 
@@ -88,7 +89,7 @@ func (r *OutboxPostgresRepository) Save(ctx context.Context, event domain.Domain
 		avroRecord = r.mapper.fromRestaurantMenuUpdated(e)
 	}
 
-	client, err := schemaregistry.NewClient(schemaregistry.NewConfig(boot.GetConfig().KafkaSchemaRegistry))
+	client, err := schemaregistry.NewClient(schemaregistry.NewConfig(r.config.KafkaSchemaRegistry))
 	if err != nil {
 		return fmt.Errorf("creating the schema registry client: %w", err)
 	}
