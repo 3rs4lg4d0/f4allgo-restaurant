@@ -19,8 +19,7 @@ docker-compose up -d && \
 if $skip; then
     echo "Skipping resource creation in Grafana"
 else
-    docker run -it --rm --network $NETWORK_NAME --volume $BASE_DIR/assets/grafana:/root ubuntu bash -c ' \
-        echo -e "Installing packages..." && apt update > /dev/null 2>&1 && apt install -y curl jq netcat > /dev/null 2>&1 && \
+    docker run -it --rm --network $NETWORK_NAME --volume $BASE_DIR/assets/grafana:/root 3rs4lg4d0/linux-utils-local-infra bash -c ' \
         while ! nc -zv prometheus 9090; do echo "Waiting for Prometheus to be ready..."; sleep 1; done && \
         while ! nc -zv grafana 3000; do echo "Waiting for Grafana to be ready..."; sleep 1; done && \
         response=$(curl -s -X POST http://grafana:3000/api/datasources -H "Content-Type: application/json" --data "{
