@@ -6,7 +6,6 @@ require (
 	github.com/3rs4lg4d0/go-kafka-checker v1.1.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/InVisionApp/go-health/v2 v2.1.4
-	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/avito-tech/go-transaction-manager v1.4.0
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/gin-gonic/gin v1.9.1
@@ -18,7 +17,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mbndr/figlet4go v0.0.0-20190224160619-d6cef5b186ea
 	github.com/rs/zerolog v1.31.0
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.26.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.26.0
@@ -34,6 +33,7 @@ require (
 	github.com/InVisionApp/go-logger v1.0.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Microsoft/hcsshim v0.11.1 // indirect
+	github.com/actgardner/gogen-avro/v10 v10.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
