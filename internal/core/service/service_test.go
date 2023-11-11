@@ -205,7 +205,7 @@ func TestCreate(t *testing.T) {
 			mp := mocks.NewMockDomainEventPublisher(t)
 			tc.mockExpectations(tc.args, mr, mp)
 			rs := NewDefaultRestaurantService(mr, mp, test.NewNopTrManager())
-			err := rs.Create(tc.args.ctx, tc.args.restaurant)
+			_, err := rs.Create(tc.args.ctx, tc.args.restaurant)
 			if !tc.wantErr {
 				assert.NoError(t, err)
 			} else {

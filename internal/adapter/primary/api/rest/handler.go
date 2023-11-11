@@ -29,13 +29,14 @@ func (rh *RestaurantHandler) CreateRestaurant(ctx *gin.Context) {
 		return
 	}
 
-	err := rh.restaurantService.Create(ctx, rh.mapper.toDomainRestaurant(request.Restaurant))
+	restaurantId, err := rh.restaurantService.Create(ctx, rh.mapper.toDomainRestaurant(request.Restaurant))
 	if err != nil {
 		handleError(ctx, err)
 		return
 	}
 
 	ctx.Status(http.StatusCreated)
+	ctx.JSON(http.StatusCreated, CreateRestaurantResponse{RestaurantId: restaurantId})
 }
 
 // DeleteRestaurant deletes a restaurant.

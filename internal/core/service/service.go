@@ -40,8 +40,8 @@ func (rs *DefaultRestaurantService) FindById(ctx context.Context, restaurantId i
 	return rs.findById(ctx, restaurantId, true)
 }
 
-func (rs *DefaultRestaurantService) Create(ctx context.Context, restaurant *domain.Restaurant) error {
-	return rs.trManager.Do(ctx, func(ctx context.Context) error {
+func (rs *DefaultRestaurantService) Create(ctx context.Context, restaurant *domain.Restaurant) (int64, error) {
+	err := rs.trManager.Do(ctx, func(ctx context.Context) error {
 		if err := rs.restaurantRepository.Save(ctx, restaurant); err != nil {
 			log.Error().Msg("an error occurred while persisting the new created restaurant: " + err.Error())
 			return coreerrors.NewRepositoryError(err)
@@ -53,6 +53,8 @@ func (rs *DefaultRestaurantService) Create(ctx context.Context, restaurant *doma
 
 		return nil
 	})
+
+	return restaurant.Id, err
 }
 
 func (rs *DefaultRestaurantService) UpdateMenu(ctx context.Context, restaurantId int64, menu *domain.Menu) error {
