@@ -20,21 +20,20 @@ func main() {
 	boot.PrintBanner()
 
 	// Get the database connection and transaction manager.
-	gormDb := boot.GetDatabaseConnection()
-	trManager := boot.GetTransactionManager(gormDb)
-	sqlDb, _ := gormDb.DB()
+	gormDB, sqlDB := boot.GetDatabaseConnection()
+	trManager := boot.GetTransactionManager(gormDB)
 
 	// Inits tally scope and gets the reporter.
-	r := boot.InitTallyReporter(sqlDb)
+	r := boot.InitTallyReporter(sqlDB)
 
 	// Inits health checks and gets the handler.
-	h := boot.GetHealthHandler(sqlDb)
+	h := boot.GetHealthHandler(sqlDB)
 
 	// Secondary adapter for RestaurantRepository port.
-	restaurantRepository := storage.NewRestaurantPostgresRepository(gormDb, trmgorm.DefaultCtxGetter, boot.GetTallyScope())
+	restaurantRepository := storage.NewRestaurantPostgresRepository(gormDB, trmgorm.DefaultCtxGetter, boot.GetTallyScope())
 
 	// Secondary adapter for DomainEventPublisher port.
-	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDb, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetConfig(), boot.GetTallyScope())
+	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDB, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetConfig(), boot.GetTallyScope())
 
 	// Core service
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)

@@ -6,6 +6,7 @@ require (
 	github.com/3rs4lg4d0/go-kafka-checker v1.1.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/InVisionApp/go-health/v2 v2.1.4
+	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/avito-tech/go-transaction-manager v1.4.1
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/gin-gonic/gin v1.9.1
@@ -33,7 +34,6 @@ require (
 	github.com/InVisionApp/go-logger v1.0.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Microsoft/hcsshim v0.11.1 // indirect
-	github.com/actgardner/gogen-avro/v10 v10.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
