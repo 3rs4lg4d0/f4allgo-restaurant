@@ -6,7 +6,7 @@ require (
 	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/golangci/golangci-lint v1.55.2
-	github.com/vektra/mockery/v2 v2.37.0
+	github.com/vektra/mockery/v2 v2.37.1
 )
 
 require (
