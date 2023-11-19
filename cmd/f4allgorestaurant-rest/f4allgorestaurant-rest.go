@@ -17,7 +17,7 @@ func main() {
 	boot.LoadConfig()
 
 	// Prints the banner with the application name (if configured)
-	boot.PrintBanner()
+	boot.PrintBanner("Service type: REST")
 
 	// Get the database connection and transaction manager.
 	gormDB, sqlDB := boot.GetDatabaseConnection()
@@ -38,7 +38,7 @@ func main() {
 	// Core service
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)
 
-	// Primary adapters
+	// Primary adapter
 	restaurantHandler := rest.NewRestaurantHandler(restaurantService)
 
 	startGinServer(restaurantHandler, r.HTTPHandler(), h)
