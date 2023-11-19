@@ -112,7 +112,7 @@ func handleError(ctx *gin.Context, err error) {
 	switch e := err.(type) {
 
 	case *coreerrors.RestaurantNotFoundError:
-		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": e.Error()})
+		ctx.AbortWithStatus(http.StatusNotFound)
 
 	case *coreerrors.RepositoryError:
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": e.Error()})
