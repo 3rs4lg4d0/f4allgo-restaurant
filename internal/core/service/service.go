@@ -90,7 +90,7 @@ func (rs *DefaultRestaurantService) Delete(ctx context.Context, restaurantId int
 		}
 
 		if rowsAffected == 0 {
-			return coreerrors.NewRestaurantNotFoundError(err)
+			return coreerrors.NewRestaurantNotFoundError()
 		}
 
 		if err := rs.domainEventPublisher.Publish(ctx, domain.NewRestaurantDeleted(restaurantId)); err != nil {
@@ -107,7 +107,7 @@ func (rs *DefaultRestaurantService) findById(ctx context.Context, restaurantId i
 	restaurant, err := rs.restaurantRepository.FindById(ctx, restaurantId, fetchMenu)
 	if err != nil {
 		if err.Error() == "record not found" {
-			return nil, coreerrors.NewRestaurantNotFoundError(err)
+			return nil, coreerrors.NewRestaurantNotFoundError()
 		} else {
 			return nil, coreerrors.NewRepositoryError(err)
 		}

@@ -2,16 +2,14 @@ package errors
 
 // RestaurantNotFoundError is returned when searching for a particular restaurant
 // in the database and no results are found matching the criteria.
-type RestaurantNotFoundError struct {
-	err error
-}
+type RestaurantNotFoundError struct{}
 
-func NewRestaurantNotFoundError(err error) *RestaurantNotFoundError {
-	return &RestaurantNotFoundError{err: err}
+func NewRestaurantNotFoundError() *RestaurantNotFoundError {
+	return &RestaurantNotFoundError{}
 }
 
 func (r *RestaurantNotFoundError) Error() string {
-	return r.err.Error()
+	return ""
 }
 
 // RepositoryError is returned when an unexpected error occurr using
