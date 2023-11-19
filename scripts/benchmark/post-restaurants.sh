@@ -3,4 +3,4 @@
 # -----------------------------------------------------------------------------
 # This benchmark registers new restaurants.
 # -----------------------------------------------------------------------------
-k6 run -u 40 -d 5m cases/post-restaurant.js
+k6 run -u 200 -d 5m cases/post-restaurant.js
