@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option go_package = "/grpc";
+
+message Restaurant {
+  int64 id = 1;
+  string name = 2;
+  Address address = 3;
+  Menu menu = 4;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  string zip = 4;
+}
+
+message Menu {
+  repeated MenuItem items = 1;
+}
+
+message MenuItem {
+  int32 id = 1;
+  string name = 2;
+  string price = 3;
+}
+
+service RestaurantService {
+  rpc GetRestaurants (GetRestaurantsRequest) returns (GetRestaurantsResponse);
+  rpc CreateRestaurant (CreateRestaurantRequest) returns (CreateRestaurantResponse);
+  rpc UpdateMenu (UpdateMenuRequest) returns (UpdateMenuResponse);
+  rpc GetRestaurantById (GetRestaurantByIdRequest) returns (GetRestaurantResponse);
+  rpc DeleteRestaurant (DeleteRestaurantRequest) returns (DeleteRestaurantResponse);
+}
+
+message GetRestaurantsRequest {
+  int32 offset = 1;
+  int32 limit = 2;
+}
+
+message GetRestaurantsResponse {
+  repeated Restaurant restaurants = 1;
+  int32 total = 2;
+}
+
+message CreateRestaurantRequest {
+  Restaurant restaurant = 1;
+}
+
+message CreateRestaurantResponse {
+  int64 restaurant_id = 1;
+}
+
+message UpdateMenuRequest {
+  int64 restaurant_id = 1;
+  Menu menu = 2;
+}
+
+message UpdateMenuResponse {}
+
+message GetRestaurantByIdRequest {
+  int64 restaurant_id = 1;
+}
+
+message GetRestaurantResponse {
+  Restaurant restaurant = 1;
+}
+
+message DeleteRestaurantRequest {
+  int64 restaurant_id = 1;
+}
+
+message DeleteRestaurantResponse {}
