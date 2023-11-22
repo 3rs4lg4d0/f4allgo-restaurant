@@ -26,6 +26,8 @@ jobs:
         cache-dependency-path: |
           go.sum
           tools/go.sum
+    - name: Install Protoc
+      uses: arduino/setup-protoc@v2
     - name: Generate sources
       run: make generate
     - name: Lint

@@ -17,7 +17,7 @@ type RestaurantService interface {
 	FindById(ctx context.Context, restaurantId int64) (*domain.Restaurant, error)
 
 	// Create creates and persist a restaurant.
-	Create(ctx context.Context, restaurant *domain.Restaurant) error
+	Create(ctx context.Context, restaurant *domain.Restaurant) (int64, error)
 
 	// UpdateMenu updates a restaurant's menu enforcing some invariants.
 	UpdateMenu(ctx context.Context, restaurantId int64, menu *domain.Menu) error

@@ -2,6 +2,7 @@ package boot
 
 import (
 	"sync"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -21,11 +22,15 @@ type Config struct {
 	LogLevel    int  `split_words:"true" default:"1"`
 	LogBeautify bool `split_words:"true" default:"false"`
 
-	DbHost     string `split_words:"true" required:"true"`
-	DbPort     string `split_words:"true" required:"true"`
-	DbName     string `split_words:"true" required:"true"`
-	DbUser     string `split_words:"true" required:"true"`
-	DbPassword string `split_words:"true" required:"true"`
+	DbHost            string        `split_words:"true" required:"true"`
+	DbPort            string        `split_words:"true" required:"true"`
+	DbName            string        `split_words:"true" required:"true"`
+	DbUser            string        `split_words:"true" required:"true"`
+	DbPassword        string        `split_words:"true" required:"true"`
+	DbMaxOpenConns    int           `split_words:"true" default:"0"`
+	DbMaxIdleConns    int           `split_words:"true" default:"2"`
+	DbConnMaxLifetime time.Duration `split_words:"true" default:"1800s"`
+	DbConnMaxIdleTime time.Duration `split_words:"true" default:"5s"`
 
 	GinMode string `envconfig:"GIN_MODE" split_words:"true" default:"release"`
 

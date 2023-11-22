@@ -36,6 +36,10 @@ type CreateRestaurantRequest struct {
 	Restaurant *Restaurant `json:"restaurant" binding:"required"`
 }
 
+type CreateRestaurantResponse struct {
+	RestaurantId int64 `json:"restaurantId"`
+}
+
 type UpdateMenuRequest struct {
 	Menu *Menu `json:"menu" binding:"required"`
 }

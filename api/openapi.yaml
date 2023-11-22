@@ -72,6 +72,16 @@ paths:
       responses:
         "201":
           description: Successful operation
+          content:
+            application/json:
+              schema:
+                title: CreateRestaurantResponse
+                type: object
+                properties:
+                  restaurantId:
+                    type: integer
+                    format: int64
+                    example: 12345
 
   /restaurants/{restaurantId}/menu:
     put:
