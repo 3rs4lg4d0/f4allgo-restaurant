@@ -30,6 +30,9 @@ cmd/f4allgorestaurant-grpc/f4allgorestaurant-grpc
 **/*_avro.go
 **/avro/bytes.go
 
+# Ignore generated protobuf files
+**/*.pb.go
+
 # Ignore generated mock files
 **/*_mock.go
 

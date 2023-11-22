@@ -1,7 +1,7 @@
 package main
 
 import (
-	"f4allgo-restaurant/internal/adapter/primary/api/rest"
+	"f4allgo-restaurant/internal/adapter/primary/rest"
 	"f4allgo-restaurant/internal/adapter/secondary/eventpublisher"
 	"f4allgo-restaurant/internal/adapter/secondary/storage"
 	"f4allgo-restaurant/internal/boot"
