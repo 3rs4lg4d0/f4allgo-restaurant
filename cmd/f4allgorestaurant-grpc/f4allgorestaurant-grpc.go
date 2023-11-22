@@ -4,7 +4,7 @@ import (
 	"net"
 	"net/http"
 
-	pb "f4allgo-restaurant/internal/adapter/primary/api/grpc"
+	pb "f4allgo-restaurant/internal/adapter/primary/grpc"
 	"f4allgo-restaurant/internal/adapter/secondary/eventpublisher"
 	"f4allgo-restaurant/internal/adapter/secondary/storage"
 	"f4allgo-restaurant/internal/boot"
