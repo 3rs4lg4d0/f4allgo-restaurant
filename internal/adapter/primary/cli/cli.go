@@ -156,7 +156,11 @@ func (rc *RestaurantCli) createRestaurant(request CreateRestaurantRequest) error
 	if err := rc.validate.Struct(request); err != nil {
 		return err
 	}
-	return rc.restaurantService.Create(rc.ctx, rc.mapper.toDomainRestaurant(request.Restaurant))
+	restaurantId, err := rc.restaurantService.Create(rc.ctx, rc.mapper.toDomainRestaurant(request.Restaurant))
+	if err != nil {
+		return err
+	}
+	return printJSON(CreateRestaurantResponse{RestaurantId: restaurantId})
 }
 
 // deleteRestaurant deletes a restaurant.

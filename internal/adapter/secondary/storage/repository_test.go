@@ -63,8 +63,8 @@ func TestMain(m *testing.M) {
 
 	trManager = boot.GetTransactionManager(db)
 
-	sqlDb, _ := db.DB()
-	boot.InitTallyReporter(sqlDb)
+	sqlDB, _ := db.DB()
+	boot.InitTallyReporter(sqlDB)
 	restaurantRepository = NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, boot.GetTallyScope())
 
 	code := m.Run()
@@ -102,8 +102,8 @@ func TestNewRestaurantPostgresRepository(t *testing.T) {
 				db:        db,
 				ctxGetter: trmgorm.DefaultCtxGetter,
 				scope: func() tally.Scope {
-					sqlDb, _ := db.DB()
-					boot.InitTallyReporter(sqlDb)
+					sqlDB, _ := db.DB()
+					boot.InitTallyReporter(sqlDB)
 					return boot.GetTallyScope()
 				}(),
 			},

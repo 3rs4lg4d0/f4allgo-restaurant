@@ -17,12 +17,12 @@ func main() {
 	boot.LoadConfig()
 
 	// Get the database connection and transaction manager.
-	db := boot.GetDatabaseConnection()
-	trManager := boot.GetTransactionManager(db)
+	gormDB, _ := boot.GetDatabaseConnection()
+	trManager := boot.GetTransactionManager(gormDB)
 
 	// Secondary adapters
-	restaurantRepository := storage.NewRestaurantPostgresRepository(db, trmgorm.DefaultCtxGetter, nil)
-	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(db, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetConfig(), nil)
+	restaurantRepository := storage.NewRestaurantPostgresRepository(gormDB, trmgorm.DefaultCtxGetter, nil)
+	outboxPublisher := eventpublisher.NewDomainEventOutboxPublisher(gormDB, trmgorm.DefaultCtxGetter, boot.GetLogger(), boot.GetConfig(), nil)
 
 	// Core service
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)

@@ -44,14 +44,22 @@ test:
 test-coverage:
 	@go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
 
-.PHONY: run-service
-run-service:
+.PHONY: run-rest-service
+run-rest-service:
 	@cd cmd/f4allgorestaurant-rest && go run f4allgorestaurant-rest.go
 
-.PHONY: run-service-debug
-run-service-debug:
+.PHONY: run-rest-service-debug
+run-rest-service-debug:
 	@export F4ALLGO_LOG_LEVEL=0 && export F4ALLGO_LOG_BEAUTIFY=true && \
 		cd cmd/f4allgorestaurant-rest && go run f4allgorestaurant-rest.go
+
+.PHONY: run-grpc-service
+run-grpc-service:
+	@cd cmd/f4allgorestaurant-grpc && go run f4allgorestaurant-grpc.go
+
+.PHONY: mod-tidy
+mod-tidy:
+	@go mod tidy && cd tools && go mod tidy
 
 # -----------------------------------------------------------------------------
 # Action to migrate database. Use it when you need to test your SQL scripts.

@@ -1,15 +1,17 @@
 package main
 
 import (
-	"f4allgo-restaurant/internal/adapter/primary/api/rest"
+	"net"
+	"net/http"
+
+	pb "f4allgo-restaurant/internal/adapter/primary/api/grpc"
 	"f4allgo-restaurant/internal/adapter/secondary/eventpublisher"
 	"f4allgo-restaurant/internal/adapter/secondary/storage"
 	"f4allgo-restaurant/internal/boot"
 	"f4allgo-restaurant/internal/core/service"
-	"net/http"
 
 	trmgorm "github.com/avito-tech/go-transaction-manager/gorm"
-	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -17,7 +19,7 @@ func main() {
 	boot.LoadConfig()
 
 	// Prints the banner with the application name (if configured)
-	boot.PrintBanner("Service type: REST")
+	boot.PrintBanner("Service type: gRPC")
 
 	// Get the database connection and transaction manager.
 	gormDB, sqlDB := boot.GetDatabaseConnection()
@@ -39,27 +41,30 @@ func main() {
 	restaurantService := service.NewDefaultRestaurantService(restaurantRepository, outboxPublisher, trManager)
 
 	// Primary adapter
-	restaurantHandler := rest.NewRestaurantHandler(restaurantService)
+	rsServer := pb.NewRestaurantServiceServer(restaurantService)
 
-	startGinServer(restaurantHandler, r.HTTPHandler(), h)
+	startServers(rsServer, r.HTTPHandler(), h)
 }
 
-func startGinServer(restaurantHandler *rest.RestaurantHandler, metricsHandler http.Handler, healthHandler http.Handler) {
-	gin.SetMode(boot.GetConfig().GinMode)
-	router := gin.New()
-	router.Use(gin.Recovery())
+func startServers(server pb.RestaurantServiceServer, metricsHandler http.Handler, healthHandler http.Handler) {
+	go func() {
+		lis, err := net.Listen("tcp", ":8081")
+		if err != nil {
+			panic("failed to listen on port 8081")
+		}
 
-	router.GET("/metrics", gin.WrapH(metricsHandler))
-	router.GET("/health", gin.WrapH(healthHandler))
+		grpcServer := grpc.NewServer()
+		pb.RegisterRestaurantServiceServer(grpcServer, server)
+		err = grpcServer.Serve(lis)
+		if err != nil {
+			panic("failed to start the gRPC service")
+		}
+	}()
 
-	api := router.Group("/api/v1")
-	api.GET("/restaurants", restaurantHandler.GetRestaurants)
-	api.POST("/restaurants", restaurantHandler.CreateRestaurant)
-	api.DELETE("/restaurants/:restaurantId", restaurantHandler.DeleteRestaurant)
-	api.GET("/restaurants/:restaurantId", restaurantHandler.GetRestaurant)
-	api.PUT("/restaurants/:restaurantId/menu", restaurantHandler.UpdateMenu)
-
-	err := router.Run(":8080")
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", metricsHandler)
+	mux.Handle("/health", healthHandler)
+	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
 		panic("failed to listen on port 8080")
 	}
