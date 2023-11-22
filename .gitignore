@@ -32,3 +32,7 @@ cmd/f4allgorestaurant-rest/f4allgorestaurant-rest
 # Ignore generated mock files
 **/*_mock.go
 
+# Ignore temporal draw.io files
+assets/draw.io/*.drawio.bkp
+assets/draw.io/*.drawio.dtmp
+
