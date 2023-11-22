@@ -9,4 +9,4 @@ The `f4allgo-restaurant` service.
 
 ![Diagram](assets/images/f4allgo-restaurant-hex-architecture.svg)
 
-The `f4allgo project` is just a personal exercise to reimplement [ftgo-application](https://github.com/microservices-patterns/ftgo-application) but with gopher eyes.
+The `f4allgo project` is just a personal exercise to reimplement the [ftgo-application](https://github.com/microservices-patterns/ftgo-application) but with gopher eyes.
