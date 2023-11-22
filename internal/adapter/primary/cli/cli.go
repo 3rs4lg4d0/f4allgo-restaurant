@@ -75,7 +75,7 @@ func (rc *RestaurantCli) Execute() error {
 			return rc.getRestaurant(restaurantId)
 		},
 	}
-	getRestaurantsCmd.PersistentFlags().Int64("restaurantId", 0, RESTAURANT_ID_DESC)
+	getRestaurantCmd.PersistentFlags().Int64("restaurantId", 0, RESTAURANT_ID_DESC)
 
 	var createRestaurantCmd = &cobra.Command{
 		Use:   "restaurant",
