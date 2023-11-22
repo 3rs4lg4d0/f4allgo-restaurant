@@ -20,11 +20,13 @@ generate:
 .PHONY: build
 build:
 	@go build -o cmd/f4allgorestaurant-rest cmd/f4allgorestaurant-rest/f4allgorestaurant-rest.go
+	@go build -o cmd/f4allgorestaurant-grpc cmd/f4allgorestaurant-grpc/f4allgorestaurant-grpc.go
 	@go build -o cmd/f4allgorestaurant-cli cmd/f4allgorestaurant-cli/f4allgorestaurant-cli.go
 
 .PHONY: clean-files
 clean-files:
 	@rm -f cmd/f4allgorestaurant-rest/f4allgorestaurant-rest
+	@rm -f cmd/f4allgorestaurant-grpc/f4allgorestaurant-grpc
 	@rm -f cmd/f4allgorestaurant-cli/f4allgorestaurant-cli
 	@rm -f coverage.out
 
