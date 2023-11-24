@@ -6,7 +6,6 @@ require (
 	github.com/3rs4lg4d0/go-kafka-checker v1.1.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/InVisionApp/go-health/v2 v2.1.4
-	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/avito-tech/go-transaction-manager v1.4.1
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/gin-gonic/gin v1.9.1
@@ -23,8 +22,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.26.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.26.0
 	github.com/uber-go/tally/v4 v4.1.10
-	google.golang.org/grpc v1.57.1
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/grpc v1.59.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 	gorm.io/plugin/optimisticlock v1.1.1
@@ -36,6 +34,7 @@ require (
 	github.com/InVisionApp/go-logger v1.0.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Microsoft/hcsshim v0.11.1 // indirect
+	github.com/actgardner/gogen-avro/v10 v10.2.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
@@ -115,6 +114,7 @@ require (
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.12.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230525234030-28d5490b6b19 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
+	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
