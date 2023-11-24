@@ -6,14 +6,14 @@ on:
     branches:
       - 'main'
     paths-ignore:
-      - assets/**"
-      - "**.md"
+      - 'assets/**'
+      - '**.md'
   push:
     branches:
       - 'main'
     paths-ignore:
-      - assets/**"
-      - "**.md"
+      - 'assets/**'
+      - '**.md'
 
 jobs:
   build:
