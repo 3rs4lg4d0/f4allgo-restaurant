@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2023-11-24T20:51:26.316Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="ok9WqwR-l8W59-kHP-gf" version="22.1.2" type="device">
+<mxfile host="Electron" modified="2023-11-24T21:00:00.843Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="WaoXzNJVXOLLCCo89keh" version="22.1.2" type="device">
   <diagram id="seDtaSWR3ry3XykyChZ2" name="Global architecture">
     <mxGraphModel dx="1035" dy="712" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="2700" math="0" shadow="0">
       <root>
@@ -109,7 +109,7 @@
         <mxCell id="PfOBRkx-wpJpk7uKKl0j-22" value="secondary adapters" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#FFFFFF;rotation=120;" parent="1" vertex="1">
           <mxGeometry x="661" y="427" width="130" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="_tbrm1RzsH2xodCoVtw8-1" value="BOOT MODULE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;fontSize=10;fontColor=#FFFFFF;rotation=0;" parent="1" vertex="1">
+        <mxCell id="_tbrm1RzsH2xodCoVtw8-1" value="BOOT PACKAGE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;labelBackgroundColor=none;fontSize=10;fontColor=#FFFFFF;rotation=0;" parent="1" vertex="1">
           <mxGeometry x="512.75" y="506.72999999999996" width="116.5" height="30" as="geometry" />
         </mxCell>
         <mxCell id="_tbrm1RzsH2xodCoVtw8-2" value="" style="rounded=1;whiteSpace=wrap;html=1;rotation=-180;fillColor=#15E823;strokeColor=#FFFFFF;" parent="1" vertex="1">
