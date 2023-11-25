@@ -29,7 +29,7 @@ type OutboxRepository interface {
 	// by the event publisher inside a business transaction where the event is raised.
 	Save(ctx context.Context, e domain.DomainEvent) error
 
-	// acquireLock gets a lock on the outbox table.
+	// acquireLock gets a lock on the outbox table using optimistic locking.
 	acquireLock() (bool, error)
 
 	// releaseLock releases a lock on the outbox table.
