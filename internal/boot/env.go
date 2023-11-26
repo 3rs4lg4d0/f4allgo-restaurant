@@ -18,6 +18,7 @@ type Config struct {
 	AppName                 string `split_words:"true" default:"unknown"`
 	AppBanner               bool   `split_words:"true" default:"false"`
 	AppInitOutboxDispatcher bool   `split_words:"true" default:"false"`
+	AppPort                 int    `split_words:"true" default:"8080"`
 
 	LogLevel    int  `split_words:"true" default:"1"`
 	LogBeautify bool `split_words:"true" default:"false"`
