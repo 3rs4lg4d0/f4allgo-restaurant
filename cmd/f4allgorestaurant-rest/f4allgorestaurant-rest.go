@@ -6,6 +6,7 @@ import (
 	"f4allgo-restaurant/internal/adapter/secondary/storage"
 	"f4allgo-restaurant/internal/boot"
 	"f4allgo-restaurant/internal/core/service"
+	"fmt"
 	"net/http"
 
 	trmgorm "github.com/avito-tech/go-transaction-manager/gorm"
@@ -17,7 +18,7 @@ func main() {
 	boot.LoadConfig()
 
 	// Prints the banner with the application name (if configured)
-	boot.PrintBanner("Service type: REST")
+	boot.PrintBanner("Service type: REST", fmt.Sprintf("Listening on port %d", boot.GetConfig().AppPort))
 
 	// Get the database connection and transaction manager.
 	gormDB, sqlDB := boot.GetDatabaseConnection()
@@ -59,8 +60,8 @@ func startGinServer(restaurantHandler *rest.RestaurantHandler, metricsHandler ht
 	api.GET("/restaurants/:restaurantId", restaurantHandler.GetRestaurant)
 	api.PUT("/restaurants/:restaurantId/menu", restaurantHandler.UpdateMenu)
 
-	err := router.Run(":8080")
+	err := router.Run(fmt.Sprintf(":%d", boot.GetConfig().AppPort))
 	if err != nil {
-		panic("failed to listen on port 8080")
+		panic(fmt.Sprintf("failed to listen on port %d", boot.GetConfig().AppPort))
 	}
 }

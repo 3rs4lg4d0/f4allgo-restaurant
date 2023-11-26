@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const batchSize int = 100
+const batchSize int = 300
 
 const (
 	successCounter string = "success"

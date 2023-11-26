@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"net/http"
 
@@ -19,7 +20,7 @@ func main() {
 	boot.LoadConfig()
 
 	// Prints the banner with the application name (if configured)
-	boot.PrintBanner("Service type: gRPC")
+	boot.PrintBanner("Service type: gRPC", fmt.Sprintf("Listening on ports %d [rest] and %d [gRPC]", boot.GetConfig().AppPort, boot.GetConfig().AppPort+1))
 
 	// Get the database connection and transaction manager.
 	gormDB, sqlDB := boot.GetDatabaseConnection()
@@ -47,10 +48,12 @@ func main() {
 }
 
 func startServers(server pb.RestaurantServiceServer, metricsHandler http.Handler, healthHandler http.Handler) {
+	gRPCPort := boot.GetConfig().AppPort + 1
+	httpPport := boot.GetConfig().AppPort
 	go func() {
-		lis, err := net.Listen("tcp", ":8081")
+		lis, err := net.Listen("tcp", fmt.Sprintf(":%d", gRPCPort))
 		if err != nil {
-			panic("failed to listen on port 8081")
+			panic(fmt.Sprintf("failed to listen on port %d", gRPCPort))
 		}
 
 		grpcServer := grpc.NewServer()
@@ -64,8 +67,8 @@ func startServers(server pb.RestaurantServiceServer, metricsHandler http.Handler
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", metricsHandler)
 	mux.Handle("/health", healthHandler)
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", httpPport), mux)
 	if err != nil {
-		panic("failed to listen on port 8080")
+		panic(fmt.Sprintf("failed to listen on port %d", httpPport))
 	}
 }
