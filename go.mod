@@ -20,7 +20,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/testcontainers/testcontainers-go v0.27.0
-	github.com/testcontainers/testcontainers-go/modules/postgres v0.26.0
+	github.com/testcontainers/testcontainers-go/modules/postgres v0.27.0
 	github.com/uber-go/tally/v4 v4.1.10
 	google.golang.org/grpc v1.60.1
 	gorm.io/driver/postgres v1.5.4
