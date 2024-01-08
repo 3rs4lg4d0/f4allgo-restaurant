@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/3rs4lg4d0/go-kafka-checker v1.1.0
-	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/InVisionApp/go-health/v2 v2.1.4
 	github.com/avito-tech/go-transaction-manager v1.4.1
 	github.com/confluentinc/confluent-kafka-go v1.9.2
