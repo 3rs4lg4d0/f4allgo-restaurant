@@ -24,7 +24,7 @@ require (
 	github.com/uber-go/tally/v4 v4.1.10
 	google.golang.org/grpc v1.61.0
 	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.6
 	gorm.io/plugin/optimisticlock v1.1.1
 )
 
