@@ -331,8 +331,9 @@ github.com/jackc/pgx/v4 v4.12.1-0.20210724153913-640aa07df17c/go.mod h1:1QD0+tgS
 github.com/jackc/pgx/v4 v4.17.0/go.mod h1:Gd6RmOhtFLTu8cp/Fhq4kP195KrshxYJH3oW8AWJ1pw=
 github.com/jackc/pgx/v4 v4.18.1/go.mod h1:FydWkUyadDmdNH/mHnGob881GawxeEm7TcMCzkb+qQE=
 github.com/jackc/pgx/v5 v5.4.3/go.mod h1:Ig06C2Vu0t5qXC60W8sqIthScaEnFvojjj9dSljmHRA=
-github.com/jackc/pgx/v5 v5.5.1 h1:5I9etrGkLrN+2XPCsi6XLlV5DITbSL/xBZdmAxFcXPI=
 github.com/jackc/pgx/v5 v5.5.1/go.mod h1:Ig06C2Vu0t5qXC60W8sqIthScaEnFvojjj9dSljmHRA=
+github.com/jackc/pgx/v5 v5.5.3 h1:Ces6/M3wbDXYpM8JyyPD57ivTtJACFZJd885pdIaV2s=
+github.com/jackc/pgx/v5 v5.5.3/go.mod h1:ez9gk+OAat140fv9ErkZDYFWmXLfV+++K0uAOiwgm1A=
 github.com/jackc/puddle v0.0.0-20190413234325-e4ced69a3a2b/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
 github.com/jackc/puddle v0.0.0-20190608224051-11cab39313c9/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
 github.com/jackc/puddle v1.1.3/go.mod h1:m4B5Dj62Y0fbyuIc15OsIqK0+JU8nkqQjsgx7dvjSWk=
@@ -574,8 +575,8 @@ github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXl
 github.com/testcontainers/testcontainers-go v0.28.0 h1:1HLm9qm+J5VikzFDYhOd+Zw12NtOl+8drH2E8nTY1r8=
 github.com/testcontainers/testcontainers-go v0.28.0/go.mod h1:COlDpUXbwW3owtpMkEB1zo9gwb1CoKVKlyrVPejF4AU=
 github.com/testcontainers/testcontainers-go/modules/kafka v0.25.0 h1:rE+21EtE/bHWb32iwpG8wLWywGfXZeTvPgf38xm3uvo=
-github.com/testcontainers/testcontainers-go/modules/postgres v0.27.0 h1:gbA/HYjBIwOwhE/t4p3kIprfI0qsxCk+YVW7P9XFOus=
-github.com/testcontainers/testcontainers-go/modules/postgres v0.27.0/go.mod h1:VFrFKUUgET2hNXStdtaC7uOIJWviFUrixhKeaVw/4F4=
+github.com/testcontainers/testcontainers-go/modules/postgres v0.28.0 h1:ff0s4JdYIdNAVSi/SrpN2Pdt1f+IjIw3AKjbHau8Un4=
+github.com/testcontainers/testcontainers-go/modules/postgres v0.28.0/go.mod h1:fXgcYpbyrduNdiz2qRZuYkmvqLnEqsjbQiBNYH1ystI=
 github.com/tklauser/go-sysconf v0.3.12 h1:0QaGUFOdQaIVdPgfITYzaTegZvdCjmYO52cSFAEVmqU=
 github.com/tklauser/go-sysconf v0.3.12/go.mod h1:Ho14jnntGE1fpdOqQEEaiKRpvIavV0hSfmBq8nJbHYI=
 github.com/tklauser/numcpus v0.6.1 h1:ng9scYS7az0Bk4OZLvrNXNSAO2Pxr1XXRAPyjhIx+Fk=
