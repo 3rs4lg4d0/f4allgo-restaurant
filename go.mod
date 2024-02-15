@@ -6,7 +6,7 @@ require (
 	github.com/3rs4lg4d0/go-kafka-checker v1.1.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/InVisionApp/go-health/v2 v2.1.4
-	github.com/avito-tech/go-transaction-manager v1.4.1
+	github.com/avito-tech/go-transaction-manager v1.5.0
 	github.com/confluentinc/confluent-kafka-go v1.9.2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/validator/v10 v10.18.0
@@ -61,7 +61,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.5.0 // indirect
+	github.com/jackc/pgx/v5 v5.5.1 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
