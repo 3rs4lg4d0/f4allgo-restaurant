@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.29.1
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.29.1
-	github.com/uber-go/tally/v4 v4.1.10
+	github.com/uber-go/tally/v4 v4.1.11
 	google.golang.org/grpc v1.62.1
 	gorm.io/driver/postgres v1.5.6
 	gorm.io/gorm v1.25.7
@@ -59,6 +59,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/heetch/avro v0.4.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
