@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/actgardner/gogen-avro/v10 v10.2.1
 	github.com/golang-migrate/migrate/v4 v4.17.0
-	github.com/golangci/golangci-lint v1.57.1
+	github.com/golangci/golangci-lint v1.57.2
 	github.com/vektra/mockery/v2 v2.38.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.33.0
@@ -81,7 +81,7 @@ require (
 	github.com/charithe/durationcheck v0.0.10 // indirect
 	github.com/chavacava/garif v0.1.0 // indirect
 	github.com/chigopher/pathlib v0.15.0 // indirect
-	github.com/ckaznocha/intrange v0.1.0 // indirect
+	github.com/ckaznocha/intrange v0.1.1 // indirect
 	github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58 // indirect
 	github.com/cncf/udpa/go v0.0.0-20220112060539-c52dc94e7fbe // indirect
 	github.com/cncf/xds/go v0.0.0-20231109132714-523115ebc101 // indirect
@@ -168,7 +168,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.2 // indirect
 	github.com/jackc/pgx/v5 v5.5.4 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
-	github.com/jgautheron/goconst v1.7.0 // indirect
+	github.com/jgautheron/goconst v1.7.1 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
 	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
@@ -176,11 +176,11 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/julz/importas v0.1.0 // indirect
 	github.com/k0kubun/pp v2.3.0+incompatible // indirect
-	github.com/karamaru-alpha/copyloopvar v1.0.8 // indirect
+	github.com/karamaru-alpha/copyloopvar v1.0.10 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kisielk/errcheck v1.7.0 // indirect
-	github.com/kkHAIKE/contextcheck v1.1.4 // indirect
+	github.com/kkHAIKE/contextcheck v1.1.5 // indirect
 	github.com/klauspost/asmfmt v1.3.2 // indirect
 	github.com/klauspost/compress v1.16.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
@@ -188,7 +188,7 @@ require (
 	github.com/kulti/thelper v0.6.3 // indirect
 	github.com/kunwardeep/paralleltest v1.0.10 // indirect
 	github.com/kyoh86/exportloopref v0.1.11 // indirect
-	github.com/ldez/gomoddirectives v0.2.3 // indirect
+	github.com/ldez/gomoddirectives v0.2.4 // indirect
 	github.com/ldez/tagliatelle v0.5.0 // indirect
 	github.com/leonklingele/grouper v1.1.1 // indirect
 	github.com/lib/pq v1.10.9 // indirect
@@ -218,7 +218,7 @@ require (
 	github.com/neo4j/neo4j-go-driver v1.8.1-0.20200803113522-b626aa943eba // indirect
 	github.com/nishanths/exhaustive v0.12.0 // indirect
 	github.com/nishanths/predeclared v0.2.2 // indirect
-	github.com/nunnatsa/ginkgolinter v0.16.1 // indirect
+	github.com/nunnatsa/ginkgolinter v0.16.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
