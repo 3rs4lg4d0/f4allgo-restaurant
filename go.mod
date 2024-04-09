@@ -22,7 +22,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.30.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.30.0
 	github.com/uber-go/tally/v4 v4.1.10
-	google.golang.org/grpc v1.63.0
+	google.golang.org/grpc v1.63.2
 	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.9
 	gorm.io/plugin/optimisticlock v1.1.1
