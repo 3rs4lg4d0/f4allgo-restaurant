@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/actgardner/gogen-avro/v10 v10.2.1
-	github.com/golang-migrate/migrate/v4 v4.17.0
+	github.com/golang-migrate/migrate/v4 v4.17.1
 	github.com/golangci/golangci-lint v1.57.2
 	github.com/vektra/mockery/v2 v2.38.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
