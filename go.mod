@@ -22,7 +22,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.31.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.31.0
 	github.com/uber-go/tally/v4 v4.1.10
-	google.golang.org/grpc v1.63.2
+	google.golang.org/grpc v1.64.0
 	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.10
 	gorm.io/plugin/optimisticlock v1.1.1
@@ -122,7 +122,7 @@ require (
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
