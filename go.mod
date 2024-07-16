@@ -25,7 +25,7 @@ require (
 	google.golang.org/grpc v1.65.0
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.11
-	gorm.io/plugin/optimisticlock v1.1.1
+	gorm.io/plugin/optimisticlock v1.1.2
 )
 
 require (
