@@ -8,7 +8,7 @@ require (
 	github.com/golangci/golangci-lint v1.59.1
 	github.com/vektra/mockery/v2 v2.38.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.4.0
-	google.golang.org/protobuf v1.36.2
+	google.golang.org/protobuf v1.36.3
 )
 
 require (
